@@ -2,6 +2,7 @@
 set -e
 
 if ! command -v emcmake &>/dev/null; then
+  source /etc/profile.d/emscripten.sh
   echo "Error: 'emcmake' not found in PATH."
   echo "Please activate emsdk environment first (e.g., 'source /path/to/emsdk/emsdk_env.sh')."
   exit 1
