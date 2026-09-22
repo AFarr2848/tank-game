@@ -6,15 +6,16 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+using namespace Tnk;
 
-GLuint tnk_ShaderManager::compileShader(GLenum type, const char* source) {
+GLuint ShaderManager::compileShader(GLenum type, const char* source) {
   GLuint shader = glCreateShader(type);
   glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
   return shader;
 }
 
-std::vector<GLuint> tnk_ShaderManager::loadVertAndFragShaders(
+std::vector<GLuint> ShaderManager::loadVertAndFragShaders(
     std::filesystem::path vertexPath,
     std::filesystem::path fragPath) {
   std::vector<GLuint> programs;
@@ -36,7 +37,7 @@ std::vector<GLuint> tnk_ShaderManager::loadVertAndFragShaders(
   return {vs, fs};
 }
 
-GLuint tnk_ShaderManager::loadCompShader(std::filesystem::path compPath) {
+GLuint ShaderManager::loadCompShader(std::filesystem::path compPath) {
   std::vector<GLuint> programs;
   std::ifstream compFile(compPath, std::ios::binary);
 
@@ -52,7 +53,7 @@ GLuint tnk_ShaderManager::loadCompShader(std::filesystem::path compPath) {
   return cs;
 }
 
-void tnk_ShaderManager::loadShaders() {
+void ShaderManager::loadShaders() {
   auto triangleShaders = loadVertAndFragShaders("/shaders/triangle.vert",
                                                 "/shaders/triangle.frag");
   shaderProgramMap["triangleProgram"] = glCreateProgram();

@@ -1,9 +1,11 @@
-
 #pragma once
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 #include "GLFW/glfw3.h"
-class tnk_Window {
+
+namespace Tnk {
+
+class Window {
  public:
   GLFWwindow* window = nullptr;
   void init();
@@ -14,3 +16,4 @@ class tnk_Window {
                                 const EmscriptenUiEvent* e,
                                 void* userData);
 };
+}  // namespace Tnk

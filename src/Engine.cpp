@@ -4,11 +4,12 @@
 #include "tank-game/Renderer.hpp"
 #include "tank-game/Window.hpp"
 #include "tank-game/managers/ShaderManager.hpp"
+using namespace Tnk;
 
-void tnk_Engine::startEngine() {
-  win = std::make_unique<tnk_Window>();
-  shaderMan = std::make_unique<tnk_ShaderManager>();
-  renderer = std::make_unique<tnk_Renderer>(*win, *shaderMan);
+void Engine::startEngine() {
+  win = std::make_unique<Window>();
+  shaderMan = std::make_unique<ShaderManager>();
+  renderer = std::make_unique<Renderer>(*win, *shaderMan);
 
   win->init();
   shaderMan->loadShaders();
@@ -19,16 +20,16 @@ void tnk_Engine::startEngine() {
   glfwTerminate();
 }
 
-void tnk_Engine::mainLoop(void* arg) {
-  tnk_Engine* engine = static_cast<tnk_Engine*>(arg);
+void Engine::mainLoop(void* arg) {
+  Engine* engine = static_cast<Engine*>(arg);
   engine->update();
 }
 
-void tnk_Engine::update() {
+void Engine::update() {
   glfwPollEvents();
   renderer->drawScreen();
   glfwSwapBuffers(win->window);
 }
 
-tnk_Engine::~tnk_Engine() = default;
-tnk_Engine::tnk_Engine() = default;
+Engine::~Engine() = default;
+Engine::Engine() = default;

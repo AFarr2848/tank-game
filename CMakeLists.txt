@@ -13,6 +13,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Engine.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Renderer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Maze.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/ShaderManager.cpp
 
 )
@@ -32,8 +33,9 @@ set_target_properties(tank-game PROPERTIES LINK_DEPENDS "${SHADER_FILES}")
 
 target_include_directories(tank-game PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
+target_include_directories(tank-game PRIVATE
+${CMAKE_CURRENT_SOURCE_DIR}/include/external)
 
 file(GLOB_RECURSE SHADER_FILES
     CONFIGURE_DEPENDS

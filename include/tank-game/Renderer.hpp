@@ -1,15 +1,17 @@
-
 #pragma once
-class tnk_Window;
-class tnk_ShaderManager;
+namespace Tnk {
 
-class tnk_Renderer {
+class Window;
+class ShaderManager;
+
+class Renderer {
  public:
-  tnk_Renderer(tnk_Window& win, tnk_ShaderManager& shaderMan)
+  Renderer(Window& win, ShaderManager& shaderMan)
       : win(win), shaderMan(shaderMan) {}
   void drawScreen();
 
  private:
-  tnk_Window& win;
-  tnk_ShaderManager& shaderMan;
+  Window& win;
+  ShaderManager& shaderMan;
 };
+}  // namespace Tnk

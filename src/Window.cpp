@@ -1,10 +1,11 @@
 #include "tank-game/Window.hpp"
 #include <stdexcept>
 #include "emscripten/emscripten.h"
+using namespace Tnk;
 
-EM_BOOL tnk_Window::OnCanvasResize(int eventType,
-                                   const EmscriptenUiEvent* e,
-                                   void* userData) {
+EM_BOOL Window::OnCanvasResize(int eventType,
+                               const EmscriptenUiEvent* e,
+                               void* userData) {
   double cssWidth, cssHeight;
   emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
 
@@ -14,21 +15,20 @@ EM_BOOL tnk_Window::OnCanvasResize(int eventType,
 
   emscripten_set_canvas_element_size("#canvas", fbWidth, fbHeight);
 
-  glfwSetWindowSize(static_cast<tnk_Window*>(userData)->window, fbWidth,
-                    fbHeight);
+  glfwSetWindowSize(static_cast<Window*>(userData)->window, fbWidth, fbHeight);
 
   glViewport(0, 0, fbWidth, fbHeight);
 
   return EM_TRUE;
 }
 
-void tnk_Window::InitResizeHandling() {
+void Window::InitResizeHandling() {
   OnCanvasResize(0, nullptr, this);
 
   emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, EM_FALSE,
                                  OnCanvasResize);
 }
-void tnk_Window::init() {
+void Window::init() {
   if (!glfwInit()) {
     throw std::runtime_error("Failed to init GLFW!");
   }

@@ -1,11 +1,12 @@
-
 #pragma once
 #include <GLES3/gl3.h>
 #include <filesystem>
 #include <map>
 #include <vector>
 
-class tnk_ShaderManager {
+namespace Tnk {
+
+class ShaderManager {
  public:
   void loadShaders();
 
@@ -17,3 +18,4 @@ class tnk_ShaderManager {
                                              std::filesystem::path fragPath);
   GLuint loadCompShader(std::filesystem::path compPath);
 };
+}  // namespace Tnk

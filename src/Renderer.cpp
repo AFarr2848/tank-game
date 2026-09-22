@@ -2,8 +2,9 @@
 #include <GLES3/gl3.h>
 #include <iostream>
 #include "tank-game/managers/ShaderManager.hpp"
+using namespace Tnk;
 
-void tnk_Renderer::drawScreen() {
+void Renderer::drawScreen() {
   glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   GLuint emptyVAO;

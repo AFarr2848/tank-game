@@ -1,22 +1,25 @@
 #pragma once
 #include <memory>
 
-class tnk_Window;
-class tnk_Renderer;
-class tnk_ShaderManager;
+namespace Tnk {
 
-class tnk_Engine {
+class Window;
+class Renderer;
+class ShaderManager;
+
+class Engine {
  public:
   void startEngine();
 
-  tnk_Engine();
-  ~tnk_Engine();
+  Engine();
+  ~Engine();
 
  private:
-  std::unique_ptr<tnk_Window> win;
-  std::unique_ptr<tnk_Renderer> renderer;
-  std::unique_ptr<tnk_ShaderManager> shaderMan;
+  std::unique_ptr<Window> win;
+  std::unique_ptr<Renderer> renderer;
+  std::unique_ptr<ShaderManager> shaderMan;
 
   static void mainLoop(void* arg);
   void update();
 };
+}  // namespace Tnk
