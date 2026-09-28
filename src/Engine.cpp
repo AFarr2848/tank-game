@@ -1,18 +1,29 @@
 #include "tank-game/Engine.hpp"
+#include <GLES3/gl3.h>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include "emscripten/emscripten.h"
+#include "tank-game/Game.hpp"
 #include "tank-game/Renderer.hpp"
 #include "tank-game/Window.hpp"
+#include "tank-game/managers/BufferManager.hpp"
 #include "tank-game/managers/ShaderManager.hpp"
 using namespace Tnk;
 
 void Engine::startEngine() {
   win = std::make_unique<Window>();
   shaderMan = std::make_unique<ShaderManager>();
-  renderer = std::make_unique<Renderer>(*win, *shaderMan);
+  bufferMan = std::make_unique<BufferManager>();
+  renderer = std::make_unique<Renderer>(*win, *shaderMan, *bufferMan);
+  game = std::make_unique<Game>();
 
   win->init();
   shaderMan->loadShaders();
+  bufferMan->makeBuffer("lineBuffer", GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+  std::cout << "Starting game..." << std::endl;
+  game->startGame();
+  std::cout << "Starting main loop..." << std::endl;
 
   emscripten_set_main_loop_arg(mainLoop, this, 0, 1);
 
@@ -27,7 +38,11 @@ void Engine::mainLoop(void* arg) {
 
 void Engine::update() {
   glfwPollEvents();
-  renderer->drawScreen();
+  bufferMan->updateBuffer("lineBuffer", game->mazeLines);
+  std::cout << game->mazeLines.size() << std::endl;
+  // renderer->drawScreen();
+  renderer->drawMaze(game->mazeLines);
+
   glfwSwapBuffers(win->window);
 }
 

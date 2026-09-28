@@ -60,4 +60,11 @@ void ShaderManager::loadShaders() {
   glAttachShader(shaderProgramMap["triangleProgram"], triangleShaders[0]);
   glAttachShader(shaderProgramMap["triangleProgram"], triangleShaders[1]);
   glLinkProgram(shaderProgramMap["triangleProgram"]);
+
+  auto lineShaders = loadVertAndFragShaders("/shaders/mazeLines.vert",
+                                            "/shaders/mazeLines.frag");
+  shaderProgramMap["mazeProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["mazeProgram"], lineShaders[0]);
+  glAttachShader(shaderProgramMap["mazeProgram"], lineShaders[1]);
+  glLinkProgram(shaderProgramMap["mazeProgram"]);
 }

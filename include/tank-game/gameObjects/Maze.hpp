@@ -1,7 +1,7 @@
 #pragma once
 #include <random>
 #include <vector>
-#include "glm/ext/vector_float2.hpp"
+#include "glm/glm.hpp"
 
 namespace Tnk {
 
@@ -11,8 +11,8 @@ class Maze {
     bool wallNorth = true, wallSouth = true, wallEast = true, wallWest = true;
     bool visited = false;
   };
-  std::vector<std::vector<MazeCell>> cells;
   int mazeSize;
+  std::vector<std::vector<MazeCell>> cells;
 
   void makeMaze(int mazeSize);
   std::vector<glm::vec2> makeLines();
