@@ -7,6 +7,7 @@ class Window;
 class Renderer;
 class ShaderManager;
 class BufferManager;
+class TextureManager;
 class Game;
 
 class Engine {
@@ -21,6 +22,7 @@ class Engine {
   std::unique_ptr<Renderer> renderer;
   std::unique_ptr<ShaderManager> shaderMan;
   std::unique_ptr<BufferManager> bufferMan;
+  std::unique_ptr<TextureManager> texMan;
   std::unique_ptr<Game> game;
 
   static void mainLoop(void* arg);

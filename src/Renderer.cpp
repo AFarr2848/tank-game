@@ -4,6 +4,7 @@
 #include <iostream>
 #include "tank-game/managers/BufferManager.hpp"
 #include "tank-game/managers/ShaderManager.hpp"
+#include "tank-game/managers/TextureManager.hpp"
 using namespace Tnk;
 
 void Renderer::drawScreen() {
@@ -35,6 +36,7 @@ void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
   glEnableVertexAttribArray(0);
   for (auto& sprite : sprites) {
+    glBindTexture(GL_TEXTURE_2D, texMan.get("thumbsup").texID);
     glUniformMatrix3fv(
         glGetUniformLocation(shaderMan.shaderProgramMap["spriteProgram"],
                              "transform"),

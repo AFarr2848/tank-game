@@ -7,11 +7,15 @@ namespace Tnk {
 class Window;
 class ShaderManager;
 class BufferManager;
+class TextureManager;
 
 class Renderer {
  public:
-  Renderer(Window& win, ShaderManager& shaderMan, BufferManager& bufferMan)
-      : win(win), shaderMan(shaderMan), bufferMan(bufferMan) {}
+  Renderer(Window& win,
+           ShaderManager& shaderMan,
+           BufferManager& bufferMan,
+           TextureManager& texMan)
+      : win(win), shaderMan(shaderMan), bufferMan(bufferMan), texMan(texMan) {}
   void drawScreen();
 
   void drawMaze(const std::vector<glm::vec2>& lines);
@@ -22,5 +26,6 @@ class Renderer {
   Window& win;
   ShaderManager& shaderMan;
   BufferManager& bufferMan;
+  TextureManager& texMan;
 };
 }  // namespace Tnk

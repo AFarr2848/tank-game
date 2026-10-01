@@ -17,6 +17,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Game.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/ShaderManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/BufferManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/TextureManager.cpp
 
 )
 
@@ -62,7 +63,9 @@ if(EMSCRIPTEN)
         "-sMAX_WEBGL_VERSION=2"
         "-sWASM=1"
         "-sALLOW_MEMORY_GROWTH=1"
-        "--embed-file" "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders@/shaders"
+        "--embed-file=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/@/shaders/"
+        "--embed-file=${CMAKE_CURRENT_SOURCE_DIR}/assets/textures/@/textures/"
+
         "--shell-file" "${CMAKE_CURRENT_SOURCE_DIR}/template.html"
         -g2
         -sSAFE_HEAP=1

@@ -11,13 +11,15 @@
 #include "tank-game/gameObjects/Sprite.hpp"
 #include "tank-game/managers/BufferManager.hpp"
 #include "tank-game/managers/ShaderManager.hpp"
+#include "tank-game/managers/TextureManager.hpp"
 using namespace Tnk;
 
 void Engine::startEngine() {
   win = std::make_unique<Window>();
   shaderMan = std::make_unique<ShaderManager>();
   bufferMan = std::make_unique<BufferManager>();
-  renderer = std::make_unique<Renderer>(*win, *shaderMan, *bufferMan);
+  texMan = std::make_unique<TextureManager>();
+  renderer = std::make_unique<Renderer>(*win, *shaderMan, *bufferMan, *texMan);
   game = std::make_unique<Game>();
 
   win->init();
@@ -26,6 +28,7 @@ void Engine::startEngine() {
   game->startGame();
   std::cout << "Starting main loop..." << std::endl;
   bufferMan->makeBuffers();
+  texMan->makeTextures();
 
   emscripten_set_main_loop_arg(mainLoop, this, 0, 1);
 
