@@ -12,7 +12,12 @@ std::vector<glm::vec2> Maze::makeLines() {
 
   auto toNDC = [this](float x, float y) -> glm::vec2 {
     float scale = 2.0f / mazeSize;
-    return {(x * scale) - 1.0f, 1.0f - (y * scale)};
+    glm::vec2 newPoint = {(x * scale) - 1.0f, 1.0f - (y * scale)};
+    if (newPoint.x == -1)
+      newPoint.x = -0.999;
+    if (newPoint.y == -1)
+      newPoint.y = -0.999;
+    return newPoint;
   };
   for (size_t row = 0; row < cells.size(); ++row) {
     for (size_t col = 0; col < cells[row].size(); ++col) {

@@ -5,8 +5,10 @@
 #include <ostream>
 #include "emscripten/emscripten.h"
 #include "tank-game/Game.hpp"
+#include "tank-game/Geometry.hpp"
 #include "tank-game/Renderer.hpp"
 #include "tank-game/Window.hpp"
+#include "tank-game/gameObjects/Sprite.hpp"
 #include "tank-game/managers/BufferManager.hpp"
 #include "tank-game/managers/ShaderManager.hpp"
 using namespace Tnk;
@@ -20,10 +22,10 @@ void Engine::startEngine() {
 
   win->init();
   shaderMan->loadShaders();
-  bufferMan->makeBuffer("lineBuffer", GL_ARRAY_BUFFER, GL_STATIC_DRAW);
   std::cout << "Starting game..." << std::endl;
   game->startGame();
   std::cout << "Starting main loop..." << std::endl;
+  bufferMan->makeBuffers();
 
   emscripten_set_main_loop_arg(mainLoop, this, 0, 1);
 
@@ -42,6 +44,7 @@ void Engine::update() {
   std::cout << game->mazeLines.size() << std::endl;
   // renderer->drawScreen();
   renderer->drawMaze(game->mazeLines);
+  renderer->drawSprites({Sprite{}});
 
   glfwSwapBuffers(win->window);
 }

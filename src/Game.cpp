@@ -1,7 +1,7 @@
 #include "tank-game/Game.hpp"
 using namespace Tnk;
 void Game::startGame() {
-  maze.makeMaze(4);
+  maze.makeMaze(6);
   getMazeLines();
 }
 

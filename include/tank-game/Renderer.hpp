@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "glm/ext/vector_float2.hpp"
+#include "tank-game/gameObjects/Sprite.hpp"
 namespace Tnk {
 
 class Window;
@@ -14,6 +15,8 @@ class Renderer {
   void drawScreen();
 
   void drawMaze(const std::vector<glm::vec2>& lines);
+
+  void drawSprites(const std::vector<Sprite>& sprites);
 
  private:
   Window& win;

@@ -26,6 +26,8 @@ add_executable(tank-game ${SOURCES})
 # Target file extension must be .html for Emscripten to generate the runner
 set_target_properties(tank-game PROPERTIES SUFFIX ".html")
 
+target_compile_definitions(tank-game PRIVATE GLM_ENABLE_EXPERIMENTAL)
+
 file(GLOB_RECURSE SHADER_FILES
     CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*"

@@ -67,4 +67,11 @@ void ShaderManager::loadShaders() {
   glAttachShader(shaderProgramMap["mazeProgram"], lineShaders[0]);
   glAttachShader(shaderProgramMap["mazeProgram"], lineShaders[1]);
   glLinkProgram(shaderProgramMap["mazeProgram"]);
+
+  auto spriteShaders =
+      loadVertAndFragShaders("/shaders/sprites.vert", "/shaders/sprites.frag");
+  shaderProgramMap["spriteProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["spriteProgram"], spriteShaders[0]);
+  glAttachShader(shaderProgramMap["spriteProgram"], spriteShaders[1]);
+  glLinkProgram(shaderProgramMap["spriteProgram"]);
 }
