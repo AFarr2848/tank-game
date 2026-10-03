@@ -9,6 +9,8 @@ class ShaderManager;
 class BufferManager;
 class TextureManager;
 class Game;
+class InputHelper;
+struct TimingData;
 
 class Engine {
  public:
@@ -24,6 +26,8 @@ class Engine {
   std::unique_ptr<BufferManager> bufferMan;
   std::unique_ptr<TextureManager> texMan;
   std::unique_ptr<Game> game;
+  std::unique_ptr<InputHelper> inputHelper;
+  std::unique_ptr<TimingData> timingData;
 
   static void mainLoop(void* arg);
   void update();

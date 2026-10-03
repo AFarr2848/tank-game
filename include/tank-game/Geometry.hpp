@@ -28,9 +28,7 @@ struct Rect {
 
   glm::mat3 getTransformation() const {
     glm::mat3 T = glm::translate(glm::mat3(1.0f), center);
-    glm::mat3 R = glm::rotate(glm::mat4(1.0f), glm::radians(rotation),
-                              glm::vec3(0.0f, 0.0f, 1.0f));
-
+    glm::mat3 R = glm::rotate(glm::mat3(1.0f), rotation);
     glm::mat3 S = glm::scale(glm::mat3(1.0f), size * 0.5f);
     return T * R * S;
   }

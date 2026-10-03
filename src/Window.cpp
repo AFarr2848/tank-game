@@ -1,6 +1,10 @@
 #include "tank-game/Window.hpp"
+#include <GLFW/glfw3.h>
 #include <stdexcept>
 #include "emscripten/emscripten.h"
+#include "glm/ext/vector_float2.hpp"
+#include "tank-game/InputHelper.hpp"
+
 using namespace Tnk;
 
 EM_BOOL Window::OnCanvasResize(int eventType,
@@ -46,4 +50,31 @@ void Window::init() {
   }
 
   glfwMakeContextCurrent(window);
+
+  glfwSetWindowUserPointer(window, &inputHelper);
+  glfwSetKeyCallback(window, GLFWKeyCallback);
+}
+
+void Window::GLFWKeyCallback(GLFWwindow* win,
+                             int key,
+                             int scancode,
+                             int action,
+                             int mods) {
+  InputHelper* inputHelper =
+      static_cast<InputHelper*>(glfwGetWindowUserPointer(win));
+
+  if (action == GLFW_PRESS) {
+    inputHelper->setKeyState(key, true);
+  }
+  if (action == GLFW_RELEASE)
+    inputHelper->setKeyState(key, false);
+}
+
+void Window::GLFWMouseCallback(GLFWwindow* window,
+                               double xposIn,
+                               double yposIn) {
+  InputHelper* inputHelper =
+      static_cast<InputHelper*>(glfwGetWindowUserPointer(window));
+
+  inputHelper->mouseMoved(window, glm::vec2(xposIn, yposIn));
 }

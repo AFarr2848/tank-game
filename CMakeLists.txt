@@ -15,9 +15,12 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Renderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Maze.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Game.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/InputHelper.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/ShaderManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/BufferManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/TextureManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Tank.cpp
+
 
 )
 
