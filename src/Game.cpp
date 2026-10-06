@@ -19,9 +19,11 @@ void Game::getMazeLines() {
 
 void Game::getInputs() {
   if (this->inputHelper.isKeyDown(GLFW_KEY_W))
-    playerTank.moveTank(timingData.deltaTime * 0.4);
+    playerTank.moveTank(
+        playerTank.checkMoveCollision(timingData.deltaTime * 0.4, maze));
   if (this->inputHelper.isKeyDown(GLFW_KEY_S))
-    playerTank.moveTank(-timingData.deltaTime * 0.4);
+    playerTank.moveTank(
+        playerTank.checkMoveCollision(-timingData.deltaTime * 0.4, maze));
   if (this->inputHelper.isKeyDown(GLFW_KEY_A))
     playerTank.turnTank(timingData.deltaTime * 2);
   if (this->inputHelper.isKeyDown(GLFW_KEY_D))

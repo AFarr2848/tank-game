@@ -3,6 +3,7 @@
 #include "tank-game/gameObjects/Sprite.hpp"
 
 namespace Tnk {
+class Maze;
 class Tank {
  public:
   Tank(Rect bounds) : bounds(bounds), sprite(&this->bounds) {}
@@ -24,8 +25,11 @@ class Tank {
   Rect bounds;
   Sprite sprite;
 
-  void moveTank(float speed);
+  void moveTank(glm::vec2 dir);
   void turnTank(float angle);
+
+  void checkTurnCollision(float turnTry);
+  glm::vec2 checkMoveCollision(float move, Maze& maze);
 
  private:
 };

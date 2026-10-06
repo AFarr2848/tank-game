@@ -10,8 +10,6 @@
 using namespace Tnk;
 
 void Renderer::drawScreen() {
-  glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
   GLuint emptyVAO;
   glGenVertexArrays(1, &emptyVAO);
 
@@ -37,8 +35,6 @@ void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
   glEnableVertexAttribArray(0);
   for (auto& sprite : sprites) {
-    std::cout << glm::to_string(sprite.bounds->getTransformation())
-              << std::endl;
     glBindTexture(GL_TEXTURE_2D, texMan.get(sprite.texture).texID);
 
     glUniformMatrix3fv(

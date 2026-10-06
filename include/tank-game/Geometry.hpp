@@ -19,6 +19,10 @@ struct Rect {
   glm::vec2 size{1.0f};
   float rotation{0.0f};
 
+  glm::vec2 normalizedCenter() {
+    return center * glm::vec2(0.5) + glm::vec2(0.5);
+  }
+
   std::array<GLfloat, 9> getTransformationFloats() const {
     glm::mat3 transform = getTransformation();
     std::array<GLfloat, 9> floats;
@@ -40,34 +44,47 @@ struct Rect {
            localPoint.y >= -1.0f && localPoint.y <= 1.0f;
   }
 
-  // I got some help on this one lol
   std::vector<glm::vec2> intersectLine(
       std::pair<glm::vec2, glm::vec2> line) const {
     glm::mat3 invTrans = glm::inverse(getTransformation());
     glm::mat3 trans = getTransformation();
 
-    glm::vec2 p1 = glm::vec2(invTrans * glm::vec3(line.first, 1.0f));
-    glm::vec2 p2 = glm::vec2(invTrans * glm::vec3(line.second, 1.0f));
+    auto transformPoint = [](const glm::mat3& m, glm::vec2 p) {
+      glm::vec3 tp = m * glm::vec3(p, 1.0f);
+      return glm::vec2(tp.x / tp.z, tp.y / tp.z);
+    };
+
+    glm::vec2 p1 = transformPoint(invTrans, line.first);
+    glm::vec2 p2 = transformPoint(invTrans, line.second);
     glm::vec2 d = p2 - p1;
 
     std::vector<glm::vec2> intersections;
+    constexpr float EPSILON = 1e-4f;
 
     auto tryAddIntersection = [&](float t, float x, float y) {
-      if (t >= 0.0f && t <= 1.0f && x >= -1.0f && x <= 1.0f && y >= -1.0f &&
-          y <= 1.0f) {
-        glm::vec2 worldPt = glm::vec2(trans * glm::vec3(x, y, 1.0f));
+      if (t >= -EPSILON && t <= 1.0f + EPSILON && x >= -1.0f - EPSILON &&
+          x <= 1.0f + EPSILON && y >= -1.0f - EPSILON && y <= 1.0f + EPSILON) {
+        x = glm::clamp(x, -1.0f, 1.0f);
+        y = glm::clamp(y, -1.0f, 1.0f);
+
+        glm::vec2 worldPt = transformPoint(trans, glm::vec2(x, y));
+
+        for (const auto& pt : intersections) {
+          if (glm::distance(pt, worldPt) < EPSILON)
+            return;
+        }
         intersections.push_back(worldPt);
       }
     };
 
-    if (d.x != 0.0f) {
+    if (std::abs(d.x) > EPSILON) {
       for (float xBoundary : {-1.0f, 1.0f}) {
         float t = (xBoundary - p1.x) / d.x;
         float y = p1.y + t * d.y;
         tryAddIntersection(t, xBoundary, y);
       }
     }
-    if (d.y != 0.0f) {
+    if (std::abs(d.y) > EPSILON) {
       for (float yBoundary : {-1.0f, 1.0f}) {
         float t = (yBoundary - p1.y) / d.y;
         float x = p1.x + t * d.x;
@@ -75,6 +92,7 @@ struct Rect {
       }
     }
 
+    std::cout << intersections.size() << std::endl;
     return intersections;
   }
 };
