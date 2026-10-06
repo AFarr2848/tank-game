@@ -2,31 +2,34 @@
 set -e
 
 if ! command -v emcmake &>/dev/null; then
-  source /etc/profile.d/emscripten.sh
+  if [ -f "/etc/profile.d/emscripten.sh" ]; then
+    source /etc/profile.d/emscripten.sh
+  elif [ -n "$EMSDK" ]; then
+    source "$EMSDK/emsdk_env.sh" &>/dev/null
+  fi
+fi
+
+if ! command -v emcmake &>/dev/null; then
   echo "Error: 'emcmake' not found in PATH."
   echo "Please activate emsdk environment first (e.g., 'source /path/to/emsdk/emsdk_env.sh')."
   exit 1
 fi
 
 BUILD_DIR="build"
+BUILD_TYPE="${1:-Release}"
 
-echo "=== Creating build directory ==="
+echo "=== Creating build directory for ($BUILD_TYPE) ==="
 mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR"
 
 echo "=== Running CMake with Emscripten ==="
-emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+emcmake cmake -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 
 echo "=== Compiling Project ==="
-emmake make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
-
-if [ -f "tank-game.html" ]; then
-  cp tank-game.html index.html
-fi
+cmake --build "$BUILD_DIR" --parallel
 
 echo ""
 echo "=== Build Complete! ==="
-echo "Generated files in './$BUILD_DIR'"
+echo "Clean deployment files generated in './dist/'"
 echo ""
 echo "To test locally, run:"
-echo "  emrun build/index.html"
+echo "  emrun dist/index.html"
