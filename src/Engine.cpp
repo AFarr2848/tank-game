@@ -7,12 +7,10 @@
 #include <ostream>
 #include "emscripten/emscripten.h"
 #include "tank-game/Game.hpp"
-#include "tank-game/Geometry.hpp"
 #include "tank-game/InputHelper.hpp"
 #include "tank-game/Renderer.hpp"
 #include "tank-game/TimingData.hpp"
 #include "tank-game/Window.hpp"
-#include "tank-game/gameObjects/Sprite.hpp"
 #include "tank-game/managers/BufferManager.hpp"
 #include "tank-game/managers/ShaderManager.hpp"
 #include "tank-game/managers/TextureManager.hpp"
@@ -60,7 +58,7 @@ void Engine::update() {
 
   bufferMan->updateBuffer("lineBuffer", game->mazeLines);
 
-  glClearColor(0.2f, 0.2f, 0.27f, 1.0f);
+  glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   renderer->drawMaze(game->mazeLines);
   renderer->drawSprites({game->playerTank.sprite});
