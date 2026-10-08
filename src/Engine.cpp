@@ -54,14 +54,15 @@ void Engine::update() {
   timingData->lastTime = glfwGetTime();
 
   inputHelper->updateInputs();
-  game->getInputs();
+  game->updateGame();
 
   bufferMan->updateBuffer("lineBuffer", game->mazeLines);
 
   glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   renderer->drawMaze(game->mazeLines);
-  renderer->drawSprites({game->playerTank.sprite});
+  auto sprites = game->getSprites();
+  renderer->drawSprites(sprites);
 
   glfwSwapBuffers(win->window);
 }

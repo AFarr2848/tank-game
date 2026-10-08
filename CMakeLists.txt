@@ -22,6 +22,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/BufferManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/TextureManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Tank.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Bullet.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Geometry.cpp
 )
 

@@ -4,12 +4,12 @@
 #include "tank-game/Geometry.hpp"
 namespace Tnk {
 struct Sprite {
-  Sprite(Rect* bounds) : bounds(bounds) {}
+  Sprite(Rect bounds) : bounds(bounds) {}
   Sprite() {
-    bounds = new Rect({.center = {0, 0}, .size = {0.5, 0.5}, .rotation = 0});
+    bounds = Rect({.center = {0, 0}, .size = {0.5, 0.5}, .rotation = 0});
   }
 
-  Rect* bounds = nullptr;
+  Rect bounds;
   std::string texture;
   std::vector<glm::vec2> getVertices() {
     std::vector<glm::vec2> rectCoords = {

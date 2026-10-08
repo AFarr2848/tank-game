@@ -1,6 +1,7 @@
 
 #include "tank-game/InputHelper.hpp"
 #include <GLFW/glfw3.h>
+#include "tank-game/Window.hpp"
 using namespace Tnk;
 
 bool InputHelper::isKeyDown(int key) const {
@@ -38,6 +39,16 @@ void InputHelper::updateInputs() {
 
 glm::vec2 InputHelper::getMouseOffsets() const {
   return mouseOffset;
+}
+
+bool InputHelper::isKeyDownToggle(int key) {
+  bool keyPressed = false;
+  if (key >= 0 && key < 512) {
+    keyPressed = keyStates[key];
+  }
+  if (keyPressed)
+    keyStates[key] = false;
+  return keyPressed;
 }
 
 void InputHelper::setKeyState(int key, bool isDown) {

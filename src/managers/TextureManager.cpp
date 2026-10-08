@@ -55,4 +55,5 @@ void TextureManager::makeTexture(std::string name,
 void TextureManager::makeTextures() {
   makeTexture("thumbsup", "textures/thumbsup.jpg");
   makeTexture("playerTank", "textures/tank2.png");
+  makeTexture("bullet", "textures/bullet.png");
 }

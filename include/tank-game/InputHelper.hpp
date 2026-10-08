@@ -14,6 +14,7 @@ class InputHelper {
  public:
   bool isKeyDown(int key) const;
   bool isMouseButtonDown(int button) const;
+  bool isKeyDownToggle(int key);
 
   void mouseMoved(GLFWwindow* window, glm::vec2 mousePos);
 

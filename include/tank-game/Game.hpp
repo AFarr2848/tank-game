@@ -13,14 +13,18 @@ class Game {
   void getMazeLines();
   std::vector<glm::vec2> mazeLines;
   Tank playerTank;
-  void getInputs();
+  void updateGame();
+
+  std::vector<Sprite> getSprites();
 
  private:
   Maze maze;
   InputHelper& inputHelper;
   TimingData& timingData;
 
-  void movePlayer();
+  void getInputs();
+
+  std::vector<Bullet> bulletVec;
 };
 
 }  // namespace Tnk

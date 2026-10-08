@@ -26,6 +26,8 @@ struct Rect {
   glm::vec2 size{1.0f};
   float rotation{0.0f};
 
+  glm::vec2 getFront();
+
   glm::vec2 normalizedCenter() {
     return center * glm::vec2(0.5) + glm::vec2(0.5);
   }

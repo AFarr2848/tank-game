@@ -3,8 +3,8 @@
 #include <emscripten/html5.h>
 #include "GLFW/glfw3.h"
 
-class InputHelper;
 namespace Tnk {
+class InputHelper;
 
 class Window {
  public:

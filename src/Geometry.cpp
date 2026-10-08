@@ -1,7 +1,12 @@
 #include "tank-game/Geometry.hpp"
 #include <vector>
+#include "glm/geometric.hpp"
 #include "tank-game/gameObjects/Maze.hpp"
 using namespace Tnk;
+
+glm::vec2 Rect::getFront() {
+  return glm::normalize(glm::vec2(cos(rotation), sin(rotation)));
+}
 
 glm::mat3 Rect::getTransformation() const {
   glm::mat3 T = glm::translate(glm::mat3(1.0f), center);
