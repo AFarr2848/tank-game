@@ -1,7 +1,11 @@
 
 #include "tank-game/managers/TextureManager.hpp"
 #include <GL/gl.h>
+#include <GL/glext.h>
+#include <GLES3/gl3.h>
 #include <stdexcept>
+#include <vector>
+#include "tank-game/gameObjects/Maze.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -16,11 +20,11 @@ Texture TextureManager::get(std::string name) {
   }
 }
 
-void TextureManager::makeTexture(std::string name,
-                                 const std::filesystem::path imagePath) {
+void TextureManager::makeTextureFromImage(
+    std::string name,
+    const std::filesystem::path imagePath) {
   int width, height, nrChannels;
 
-  // Force stbi_load to convert whatever it finds into 4-channel RGBA
   unsigned char* data = stbi_load(imagePath.string().c_str(), &width, &height,
                                   &nrChannels, STBI_rgb_alpha);
   if (!data) {
@@ -38,22 +42,102 @@ void TextureManager::makeTexture(std::string name,
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  // Explicitly set unpack alignment to 1 for non-4-byte aligned rows
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  // Upload as GL_RGBA since STBI_rgb_alpha forces 4 channels
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
   stbi_image_free(data);
 
-  // Store in map AFTER generation succeeds
   texMap[name].texID = texID;
 }
 
-void TextureManager::makeTextures() {
-  makeTexture("thumbsup", "textures/thumbsup.jpg");
-  makeTexture("playerTank", "textures/tank2.png");
-  makeTexture("bullet", "textures/bullet.png");
+void TextureManager::makeBlankTexture(std::string name,
+                                      int screenW,
+                                      int screenH,
+                                      GLint internalFormat,
+                                      GLenum format,
+                                      GLenum samplingMethod) {
+  GLuint texID;
+  glGenTextures(1, &texID);
+  glBindTexture(GL_TEXTURE_2D, texID);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, screenW, screenH, 0, GL_RGBA,
+               format, nullptr);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, samplingMethod);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, samplingMethod);
+
+  texMap[name].texID = texID;
+}
+
+void TextureManager::makeTextures(int screenW, int screenH) {
+  glGenFramebuffers(1, &fbo);
+  makeTextureFromImage("thumbsup", "textures/thumbsup.jpg");
+  makeTextureFromImage("playerTank", "textures/tank2.png");
+  makeTextureFromImage("bullet", "textures/bullet.png");
+  makeBufferTextures(screenW, screenH);
+}
+void TextureManager::makeBufferTextures(int screenW, int screenH) {
+  makeBlankTexture("mazeTex", screenW, screenH, GL_RGBA8, GL_UNSIGNED_BYTE,
+                   GL_NEAREST);
+  makeBlankTexture("cascade0", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+                   GL_NEAREST);
+  makeBlankTexture("cascade1", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+                   GL_NEAREST);
+  makeBlankTexture("cascade2", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+                   GL_NEAREST);
+  makeBlankTexture("cascade3", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+                   GL_NEAREST);
+  makeBlankTexture("lightingTex", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+                   GL_LINEAR);
+  makeBlankTexture("tempLightingTex", screenW, screenH, GL_RGBA16F,
+                   GL_HALF_FLOAT, GL_LINEAR);
+}
+
+void TextureManager::makeWallTex(Maze& maze) {
+  int N = maze.mazeSize;
+
+  std::vector<uint8_t> data((N + 1) * (N + 1) * 2, 0);
+  auto setV = [&](int i, int j) { data[(j * (N + 1) + i) * 2 + 0] = 255; };
+  auto setH = [&](int i, int j) { data[(j * (N + 1) + i) * 2 + 1] = 255; };
+
+  for (int r = 0; r < N; r++) {
+    for (int c = 0; c < N; c++) {
+      const Maze::MazeCell& cell = maze.cells[r][c];
+      int i = c;
+      int j = r;
+
+      if (cell.wallWest)
+        setV(i, j);
+      if (cell.wallEast)
+        setV(i + 1, j);
+      if (cell.wallSouth)
+        setH(i, j + 1);
+      if (cell.wallNorth)
+        setH(i, j);
+    }
+  }
+
+  for (int k = 0; k < N; k++) {
+    setV(0, k);
+    setV(N, k);
+    setH(k, 0);
+    setH(k, N);
+  }
+
+  GLuint wallTex;
+  glGenTextures(1, &wallTex);
+  glBindTexture(GL_TEXTURE_2D, wallTex);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, N + 1, N + 1, 0, GL_RG,
+               GL_UNSIGNED_BYTE, data.data());
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  texMap["wallTex"].texID = wallTex;
 }

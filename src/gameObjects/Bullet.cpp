@@ -5,6 +5,7 @@ using namespace Tnk;
 
 void Bullet::moveBullet(float deltaTime, Maze& maze) {
   bounds.center += vel * deltaTime;
+  light.location = bounds.center;
   for (auto colDir : bounds.collideMaze(maze)) {
     if (colDir == CollisionDirection::DIR_NORTH && vel.y > 0) {
       vel.y *= -1;

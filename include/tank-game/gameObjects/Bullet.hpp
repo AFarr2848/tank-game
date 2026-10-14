@@ -1,6 +1,7 @@
 #pragma once
 #include "glm/ext/vector_float2.hpp"
 #include "tank-game/Geometry.hpp"
+#include "tank-game/Lighting.hpp"
 #include "tank-game/gameObjects/Sprite.hpp"
 namespace Tnk {
 class Tank;
@@ -10,6 +11,9 @@ class Bullet {
   Bullet(Rect bounds, Tank& owner)
       : bounds(bounds), sprite(this->bounds), owner(&owner) {
     sprite.texture = "bullet";
+    light = PointLight{.location = bounds.center,
+                       .radius = 0.01,
+                       .color = glm::vec3(0.5f, 0.0f, 0.2f) * glm::vec3(25.0)};
   }
   Bullet(Tank& owner) : bounds(), sprite(this->bounds), owner(&owner) {
     sprite.texture = "bullet";
@@ -31,6 +35,7 @@ class Bullet {
   Rect bounds;
   Sprite sprite;
   Tank* owner;
+  PointLight light;
   int bounces = 0;
   int maxBounces = 2;
 

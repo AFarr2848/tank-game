@@ -10,6 +10,7 @@ using namespace Tnk;
 
 void Tank::moveTank(glm::vec2 dir) {
   bounds.center += dir;
+  light.location = bounds.center;
 }
 void Tank::turnTank(float angle) {
   bounds.rotation += angle;

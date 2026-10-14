@@ -14,11 +14,14 @@ class Game {
   std::vector<glm::vec2> mazeLines;
   Tank playerTank;
   void updateGame();
+  int mazeSize;
+  int numLights;
+  Maze maze;
 
   std::vector<Sprite> getSprites();
+  std::array<PointLight, MAX_LIGHTS> getLights();
 
  private:
-  Maze maze;
   InputHelper& inputHelper;
   TimingData& timingData;
 

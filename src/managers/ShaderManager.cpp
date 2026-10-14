@@ -74,4 +74,33 @@ void ShaderManager::loadShaders() {
   glAttachShader(shaderProgramMap["spriteProgram"], spriteShaders[0]);
   glAttachShader(shaderProgramMap["spriteProgram"], spriteShaders[1]);
   glLinkProgram(shaderProgramMap["spriteProgram"]);
+
+  auto cascadeShaders =
+      loadVertAndFragShaders("/shaders/cascade.vert", "/shaders/cascade.frag");
+  shaderProgramMap["cascadeProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["cascadeProgram"], cascadeShaders[0]);
+  glAttachShader(shaderProgramMap["cascadeProgram"], cascadeShaders[1]);
+  glLinkProgram(shaderProgramMap["cascadeProgram"]);
+
+  auto imageShaders =
+      loadVertAndFragShaders("/shaders/image.vert", "/shaders/image.frag");
+  shaderProgramMap["imageProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["imageProgram"], imageShaders[0]);
+  glAttachShader(shaderProgramMap["imageProgram"], imageShaders[1]);
+  glLinkProgram(shaderProgramMap["imageProgram"]);
+
+  auto averageLighting = loadVertAndFragShaders(
+      "/shaders/averageLighting.vert", "/shaders/averageLighting.frag");
+  shaderProgramMap["averageProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["averageProgram"], averageLighting[0]);
+  glAttachShader(shaderProgramMap["averageProgram"], averageLighting[1]);
+  glLinkProgram(shaderProgramMap["averageProgram"]);
+
+  auto mergeShaders =
+      loadVertAndFragShaders("/shaders/merge.vert", "/shaders/merge.frag");
+  shaderProgramMap["mergeProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["mergeProgram"], mergeShaders[0]);
+  glAttachShader(shaderProgramMap["mergeProgram"], mergeShaders[1]);
+  glLinkProgram(shaderProgramMap["mergeProgram"]);
+  glUseProgram(shaderProgramMap["mergeProgram"]);
 }

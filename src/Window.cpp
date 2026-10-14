@@ -10,6 +10,7 @@ using namespace Tnk;
 EM_BOOL Window::OnCanvasResize(int eventType,
                                const EmscriptenUiEvent* e,
                                void* userData) {
+  Window* window = static_cast<Window*>(userData);
   double cssWidth, cssHeight;
   emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
 
@@ -19,9 +20,12 @@ EM_BOOL Window::OnCanvasResize(int eventType,
 
   emscripten_set_canvas_element_size("#canvas", fbWidth, fbHeight);
 
-  glfwSetWindowSize(static_cast<Window*>(userData)->window, fbWidth, fbHeight);
+  glfwSetWindowSize(window->window, fbWidth, fbHeight);
 
   glViewport(0, 0, fbWidth, fbHeight);
+  window->width = fbWidth;
+  window->height = fbHeight;
+  window->resized = true;
 
   return EM_TRUE;
 }

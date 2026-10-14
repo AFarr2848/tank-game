@@ -12,6 +12,9 @@ class Window {
   GLFWwindow* window = nullptr;
   void init();
   void InitResizeHandling();
+  int width;
+  int height;
+  bool resized = false;
 
  private:
   InputHelper& inputHelper;

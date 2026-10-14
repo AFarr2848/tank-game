@@ -8,10 +8,17 @@ class Maze;
 class Tank {
  public:
   Tank(Rect bounds) : bounds(bounds), sprite(this->bounds) {}
-  Tank() : bounds(), sprite(this->bounds) {}
+  Tank() : bounds(), sprite(this->bounds) {
+    light = PointLight{.location = bounds.center,
+                       .radius = 0.03,
+                       .color = glm::vec3(1.0f, 1.0f, 1.0f) * glm::vec3(10)};
+  }
 
   Tank(const Tank& other) : bounds(other.bounds), sprite(this->bounds) {
     sprite.texture = other.sprite.texture;
+    light = PointLight{.location = bounds.center,
+                       .radius = 0.03,
+                       .color = glm::vec3(3.0f, 3.0f, 3.0f)};
   }
 
   Tank& operator=(const Tank& other) {
@@ -27,6 +34,7 @@ class Tank {
 
   Rect bounds;
   Sprite sprite;
+  PointLight light;
 
   void moveTank(glm::vec2 dir);
   void turnTank(float angle);

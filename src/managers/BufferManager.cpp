@@ -1,7 +1,9 @@
 #include "tank-game/managers/BufferManager.hpp"
+#include <GL/glext.h>
 #include <GLES3/gl3.h>
 #include <stdexcept>
 #include "glm/ext/vector_float2.hpp"
+#include "tank-game/gameObjects/Sprite.hpp"
 using namespace Tnk;
 void BufferManager::makeBuffer(std::string name, GLenum target, GLenum usage) {
   bufferMap[name] = {.target = target, .usage = usage};
@@ -14,7 +16,10 @@ void BufferManager::makeBuffers() {
 
   makeBuffer("lineBuffer", GL_ARRAY_BUFFER, GL_STATIC_DRAW);
   makeBuffer("spriteBuffer", GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-  updateBuffer("spriteBuffer", squareVertices);
+  makeBuffer("emptyBuffer", GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+  makeBuffer("lightBuffer", GL_UNIFORM_BUFFER, GL_DYNAMIC_DRAW);
+  updateBuffer("spriteBuffer", squareVertices.data(),
+               sizeof(Sprite) * squareVertices.size());
 }
 
 Buffer BufferManager::get(const std::string name) {

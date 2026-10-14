@@ -3,7 +3,9 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <tank-game/InputHelper.hpp>
+#include "tank-game/Lighting.hpp"
 #include "tank-game/TimingData.hpp"
+#include "tank-game/gameObjects/Bullet.hpp"
 using namespace Tnk;
 void Game::startGame() {
   maze.makeMaze(6);
@@ -12,6 +14,20 @@ void Game::startGame() {
       .center = {-0.9, -0.9}, .size = {0.11, 0.075}, .rotation = 0};
   playerTank = Tank(tankBounds);
   playerTank.sprite.texture = "playerTank";
+  mazeSize = maze.mazeSize;
+}
+
+std::array<PointLight, MAX_LIGHTS> Game::getLights() {
+  std::array<PointLight, MAX_LIGHTS> lights;
+  numLights = 1;
+  lights[0] = playerTank.light;
+  for (int i = 0; i < bulletVec.size(); i++) {
+    numLights++;
+    lights[i + 1] = bulletVec[i].light;
+  }
+
+  std::cout << numLights << std::endl;
+  return lights;
 }
 
 void Game::getMazeLines() {
@@ -39,10 +55,8 @@ void Game::updateGame() {
   for (int i = 0; i < bulletVec.size(); i++) {
     Bullet& b = bulletVec.at(i);
     b.moveBullet(timingData.deltaTime, maze);
-    std::cout << b.bounces << std::endl;
     if (b.bounces > b.maxBounces) {
       bulletVec.erase(bulletVec.begin() + i);
-      std::cout << "erased" << std::endl;
     }
   }
   getInputs();

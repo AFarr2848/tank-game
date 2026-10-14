@@ -19,11 +19,10 @@ class BufferManager {
   Buffer get(const std::string name);
 
   void makeBuffer(std::string name, GLenum target, GLenum usage);
-  template <typename T>
-  void updateBuffer(std::string name, const std::vector<T>& data) {
+  void updateBuffer(std::string name, void* data, int size) {
     auto& buf = bufferMap[name];
     buf.bind();
-    glBufferData(buf.target, sizeof(T) * data.size(), data.data(), buf.usage);
+    glBufferData(buf.target, size, data, buf.usage);
   }
 
   void makeBuffers();
