@@ -4,6 +4,8 @@
 #include "glm/ext/vector_float3.hpp"
 namespace Tnk {
 const int MAX_LIGHTS = 64;
+const int INTERVAL_INCREASE_FACTOR = 4;
+const int MAX_CASCADES = 4;
 
 struct PointLight {
   glm::vec2 location;
@@ -14,23 +16,51 @@ struct PointLight {
 };
 
 struct CascadeInfo {
-  int mazeSize;
-  glm::vec2 screenSize;
   int cascadeLevel;
   float linearInterval;
   float rayInterval;
-  glm::vec3 backgroundColor;
+  int mazeSize;
+  glm::vec2 screenSize;
   int numLights;
 };
+struct MergeInfo {
+  int cascadeLevel;
+  float linearInterval;
+  float rayInterval;
+  glm::vec2 screenSize;
+};
 struct CascadeInfoLocations {
-  GLint mazeSize;
-  GLint screenSize;
   GLint cascadeLevel;
   GLint linearInterval;
   GLint rayInterval;
-  GLint backgroundColor;
+  GLint mazeSize;
+  GLint screenSize;
   GLint numLights;
-  void init(GLuint shaderProgram);
+};
+struct MergeInfoLocations {
+  GLint cascadeLevel;
+  GLint linearInterval;
+  GLint rayInterval;
+  GLint screenSize;
+};
+
+class Lighting {
+ public:
+  void initLocations(GLuint cascadeShader, GLuint mergeShader);
+  void preloadMazeCollisions();
+
+  void setCascadeInfoUniforms();
+  void initCascadeInfoLocations(GLuint shaderProgram);
+  void initMergeInfoLocations(GLuint shaderProgram);
+  void setMergeInfoUniforms();
+  void incrementMergeUniforms(int cascadeLevel);
+  void incrementCascadeUniforms(int cascadeLevel);
+  CascadeInfo cascadeInfo;
+  MergeInfo mergeInfo;
+
+ private:
+  CascadeInfoLocations cascadeLocations;
+  MergeInfoLocations mergeLocations;
 };
 
 }  // namespace Tnk

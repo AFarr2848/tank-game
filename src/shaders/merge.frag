@@ -2,14 +2,11 @@
 precision highp float;
 #define PI 3.14159265359
 
-struct CascadeInfo {
-  int mazeSize;
-  vec2 screenSize;
+struct MergeInfo {
   int cascadeLevel;
   float linearInterval;
   float rayInterval;
-  vec3 backgroundColor;
-  int numLights;
+  vec2 screenSize;
 };
 
 struct RayEndpointInfo {
@@ -19,7 +16,7 @@ struct RayEndpointInfo {
 
 uniform sampler2D highCascade;
 uniform sampler2D lowCascade;
-uniform CascadeInfo cascadeInfo;
+uniform MergeInfo mergeInfo;
 
 out vec4 FragColor;
 
@@ -27,7 +24,7 @@ RayEndpointInfo getLowerEndpoint();
 vec2 getHigherCascadeUV(vec2 endpoint, int rayNum);
 
 vec4 fetchHigher(ivec2 q, int rayNum, int Hi) {
-  ivec2 probes = ivec2(cascadeInfo.screenSize) / Hi;
+  ivec2 probes = ivec2(mergeInfo.screenSize) / Hi;
   q = clamp(q, ivec2(0), probes - 1);
   vec4 sum = vec4(0.0);
   for (int k = 0; k < 4; k++) {
@@ -38,7 +35,7 @@ vec4 fetchHigher(ivec2 q, int rayNum, int Hi) {
 }
 
 void main() {
-  float L = 2.0 * exp2(float(cascadeInfo.cascadeLevel));
+  float L = 2.0 * exp2(float(mergeInfo.cascadeLevel));
   float rayInterval = 2.0 * PI / (L * L);
   int Li = int(L);
 
@@ -46,7 +43,7 @@ void main() {
   vec2 probeCenter = (floor(gl_FragCoord.xy / L) + 0.5) * L;
   int rayNum = (frag.x % Li) + Li * (frag.y % Li);
   float angle = (float(rayNum) + 0.5) * rayInterval;
-  float maxLength = pow(6.0, float(cascadeInfo.cascadeLevel + 1));
+  float maxLength = pow(4.0, float(mergeInfo.cascadeLevel + 1));
   vec2 endpoint = probeCenter + vec2(cos(angle), sin(angle)) * maxLength;
 
   float H = L * 2.0;

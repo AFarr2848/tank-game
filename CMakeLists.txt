@@ -24,6 +24,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Tank.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Bullet.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Geometry.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Lighting.cpp
 )
 
 # Output executable target

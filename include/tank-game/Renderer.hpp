@@ -15,18 +15,21 @@ class Renderer {
   Renderer(Window& win,
            ShaderManager& shaderMan,
            BufferManager& bufferMan,
-           TextureManager& texMan)
-      : win(win), shaderMan(shaderMan), bufferMan(bufferMan), texMan(texMan) {}
-  void init(GLuint cascadeProgram, GLuint averageProgram, GLuint mergeProgram);
+           TextureManager& texMan,
+           Lighting& lighting)
+      : win(win),
+        shaderMan(shaderMan),
+        bufferMan(bufferMan),
+        texMan(texMan),
+        lighting(lighting) {}
   void drawScreen();
 
   void drawMaze(const std::vector<glm::vec2>& lines);
 
   void drawSprites(const std::vector<Sprite>& sprites);
   void drawImage();
-  void drawCascades(std::array<PointLight, MAX_LIGHTS>& lights,
-                    CascadeInfo cascadeInfo);
-  void mergeCascades(CascadeInfo cascadeInfo);
+  void drawCascades(std::array<PointLight, MAX_LIGHTS>& lights);
+  void mergeCascades();
   void combineLighting();
 
  private:
@@ -34,11 +37,6 @@ class Renderer {
   ShaderManager& shaderMan;
   BufferManager& bufferMan;
   TextureManager& texMan;
-  CascadeInfoLocations cascadeLocations;
-  CascadeInfoLocations mergeLocations;
-  GLint average_screenSizeLocation;
-
-  void setCascadeInfoUniforms(const CascadeInfoLocations& locs,
-                              const CascadeInfo& info);
+  Lighting& lighting;
 };
 }  // namespace Tnk

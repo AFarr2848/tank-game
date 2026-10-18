@@ -58,8 +58,7 @@ void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
   }
 }
 
-void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights,
-                            CascadeInfo cascadeInfo) {
+void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
   GLuint program = shaderMan.shaderProgramMap["cascadeProgram"];
   glUseProgram(program);
@@ -69,25 +68,21 @@ void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights,
   glBindTexture(GL_TEXTURE_2D, texMan.get("wallTex").texID);
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, bufferMan.get("lightBuffer").bufferID);
-  setCascadeInfoUniforms(cascadeLocations, cascadeInfo);
   bufferMan.get("emptyBuffer").bind();
-  for (int i = 0; i < 4; i++) {
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-      fprintf(stderr, "FBO incomplete: 0x%x\n", status);
+  for (int i = 0; i < MAX_CASCADES; i++) {
+    lighting.incrementCascadeUniforms(i);
+    lighting.setCascadeInfoUniforms();
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                            texMan.get("cascade" + std::to_string(i)).texID, 0);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
-    glUniform1i(cascadeLocations.cascadeLevel, i);
     glDrawArrays(GL_TRIANGLES, 0, 6);
   }
 }
 
-void Renderer::mergeCascades(CascadeInfo cascadeInfo) {
+void Renderer::mergeCascades() {
   GLuint program = shaderMan.shaderProgramMap["mergeProgram"];
   glUseProgram(program);
-  setCascadeInfoUniforms(mergeLocations, cascadeInfo);
   glUniform1i(glGetUniformLocation(shaderMan.shaderProgramMap["mergeProgram"],
                                    "highCascade"),
               0);
@@ -96,7 +91,8 @@ void Renderer::mergeCascades(CascadeInfo cascadeInfo) {
               1);
 
   std::string currentReadTex = "cascade3";
-  for (int i = 3; i > 0; i--) {
+  for (int i = MAX_CASCADES - 1; i > 0; i--) {
+    lighting.incrementMergeUniforms(i);
     std::string currentFBTex =
         (currentReadTex == "lightingTex") ? "tempLightingTex" : "lightingTex";
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
@@ -108,8 +104,7 @@ void Renderer::mergeCascades(CascadeInfo cascadeInfo) {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texMan.get(currentReadTex).texID);
-
-    glUniform1i(mergeLocations.cascadeLevel, i - 1);
+    lighting.setMergeInfoUniforms();
 
     // std::cout << "Merge pass " + std::to_string(i) +
     //                  ": Higher= " + currentReadTex +
@@ -119,15 +114,6 @@ void Renderer::mergeCascades(CascadeInfo cascadeInfo) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
     currentReadTex = currentFBTex;
   }
-}
-
-void Renderer::init(GLuint cascadeProgram,
-                    GLuint averageProgram,
-                    GLuint mergeProgram) {
-  cascadeLocations.init(cascadeProgram);
-  mergeLocations.init(mergeProgram);
-  average_screenSizeLocation =
-      glGetUniformLocation(averageProgram, "screenSize");
 }
 
 void Renderer::combineLighting() {
@@ -147,7 +133,9 @@ void Renderer::combineLighting() {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texMan.get("mazeTex").texID);
 
-  glUniform2f(average_screenSizeLocation, win.width, win.height);
+  glUniform2f(glGetUniformLocation(shaderMan.shaderProgramMap["averageProgram"],
+                                   "screenSize"),
+              win.width, win.height);
 
   bufferMan.get("emptyBuffer").bind();
   glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -160,29 +148,4 @@ void Renderer::drawImage() {
   bufferMan.get("emptyBuffer").bind();
   glBindTexture(GL_TEXTURE_2D, texMan.get("lightingTex").texID);
   glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
-void CascadeInfoLocations::init(GLuint shaderProgram) {
-  mazeSize = glGetUniformLocation(shaderProgram, "cascadeInfo.mazeSize");
-  screenSize = glGetUniformLocation(shaderProgram, "cascadeInfo.screenSize");
-  cascadeLevel =
-      glGetUniformLocation(shaderProgram, "cascadeInfo.cascadeLevel");
-  linearInterval =
-      glGetUniformLocation(shaderProgram, "cascadeInfo.linearInterval");
-  rayInterval = glGetUniformLocation(shaderProgram, "cascadeInfo.rayInterval");
-  backgroundColor =
-      glGetUniformLocation(shaderProgram, "cascadeInfo.backgroundColor");
-  numLights = glGetUniformLocation(shaderProgram, "cascadeInfo.numLights");
-}
-
-void Renderer::setCascadeInfoUniforms(const CascadeInfoLocations& locs,
-                                      const CascadeInfo& info) {
-  glUniform1i(locs.mazeSize, info.mazeSize);
-  glUniform2f(locs.screenSize, info.screenSize.x, info.screenSize.y);
-  glUniform1i(locs.cascadeLevel, info.cascadeLevel);
-  glUniform1f(locs.linearInterval, info.linearInterval);
-  glUniform1f(locs.rayInterval, info.rayInterval);
-  glUniform3f(locs.backgroundColor, info.backgroundColor.r,
-              info.backgroundColor.g, info.backgroundColor.b);
-  glUniform1i(locs.numLights, info.numLights);
 }

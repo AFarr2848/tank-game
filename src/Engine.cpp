@@ -26,7 +26,9 @@ void Engine::startEngine() {
   shaderMan = std::make_unique<ShaderManager>();
   bufferMan = std::make_unique<BufferManager>();
   texMan = std::make_unique<TextureManager>();
-  renderer = std::make_unique<Renderer>(*win, *shaderMan, *bufferMan, *texMan);
+  lighting = std::make_unique<Lighting>();
+  renderer = std::make_unique<Renderer>(*win, *shaderMan, *bufferMan, *texMan,
+                                        *lighting);
   game = std::make_unique<Game>(*inputHelper, *timingData);
 
   std::cout << "Window init..." << std::endl;
@@ -34,9 +36,6 @@ void Engine::startEngine() {
   std::cout << "Load shaders..." << std::endl;
   shaderMan->loadShaders();
   std::cout << "Renderer init..." << std::endl;
-  renderer->init(shaderMan->shaderProgramMap["cascadeProgram"],
-                 shaderMan->shaderProgramMap["averageProgram"],
-                 shaderMan->shaderProgramMap["mergeProgram"]);
   std::cout << "Starting game..." << std::endl;
   game->startGame();
   std::cout << "Making buffers..." << std::endl;
@@ -47,6 +46,8 @@ void Engine::startEngine() {
 
   bufferMan->updateBuffer("lineBuffer", game->mazeLines.data(),
                           sizeof(glm::vec2) * game->mazeLines.size());
+  lighting->initLocations(shaderMan->shaderProgramMap["cascadeProgram"],
+                          shaderMan->shaderProgramMap["mergeProgram"]);
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_STENCIL_TEST);
@@ -81,21 +82,16 @@ void Engine::update() {
   glBindFramebuffer(GL_FRAMEBUFFER, texMan->fbo);
   renderer->drawMaze(game->mazeLines);
 
+  lighting->cascadeInfo.screenSize = {win->width, win->height};
+  lighting->mergeInfo.screenSize = {win->width, win->height};
+  lighting->cascadeInfo.numLights = game->numLights;
+  lighting->cascadeInfo.mazeSize = game->mazeSize;
   glDisable(GL_BLEND);
-  CascadeInfo cascadeInfo = {
-      .mazeSize = game->mazeSize,
-      .screenSize = glm::vec2(win->width, win->height),
-      .cascadeLevel = 0,
-      .linearInterval = 2,
-      .rayInterval = std::numbers::pi / 2,
-      .backgroundColor = glm::vec3(0.2f, 0.2f, 0.25f),
-      .numLights = game->numLights,
-
-  };
   auto lights = game->getLights();
-  renderer->drawCascades(lights, cascadeInfo);
-  renderer->mergeCascades(cascadeInfo);
+  renderer->drawCascades(lights);
+  renderer->mergeCascades();
 
+  glEnable(GL_BLEND);
   auto sprites = game->getSprites();
   renderer->drawSprites(sprites);
 

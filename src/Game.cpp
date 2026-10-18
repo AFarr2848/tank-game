@@ -13,6 +13,7 @@ void Game::startGame() {
   Rect tankBounds = {
       .center = {-0.9, -0.9}, .size = {0.11, 0.075}, .rotation = 0};
   playerTank = Tank(tankBounds);
+  playerTank.light.location = playerTank.bounds.center;
   playerTank.sprite.texture = "playerTank";
   mazeSize = maze.mazeSize;
 }
