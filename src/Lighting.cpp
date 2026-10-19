@@ -52,10 +52,13 @@ void Lighting::setMergeInfoUniforms() {
 
 void Lighting::initLocations(GLuint cascadeShader,
                              GLuint mergeShader,
-                             GLuint bakeShader) {
+                             GLuint bakeShader,
+                             GLuint averageShader) {
   initCascadeInfoLocations(cascadeShader);
   initMergeInfoLocations(mergeShader);
   initMazeBakeLocations(bakeShader);
+  average_screenSizeLocation =
+      glGetUniformLocation(averageShader, "screenSize");
 }
 
 void Lighting::initCascadeInfoLocations(GLuint shaderProgram) {

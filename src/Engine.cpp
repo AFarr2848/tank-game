@@ -48,7 +48,8 @@ void Engine::startEngine() {
                           sizeof(glm::vec2) * game->mazeLines.size());
   lighting->initLocations(shaderMan->shaderProgramMap["cascadeProgram"],
                           shaderMan->shaderProgramMap["mergeProgram"],
-                          shaderMan->shaderProgramMap["mazeBakeProgram"]);
+                          shaderMan->shaderProgramMap["mazeBakeProgram"],
+                          shaderMan->shaderProgramMap["averageProgram"]);
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_STENCIL_TEST);
@@ -71,6 +72,7 @@ void Engine::mainLoop(void* arg) {
 }
 
 void Engine::update() {
+  double t0 = emscripten_get_now();
   glfwPollEvents();
   timingData->deltaTime = glfwGetTime() - timingData->lastTime;
   timingData->lastTime = glfwGetTime();
@@ -106,6 +108,18 @@ void Engine::update() {
   renderer->drawSprites(sprites);
 
   renderer->combineLighting();
+
+  unsigned char px[4];
+  glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px);  // forces a sync
+
+  static double acc = 0;
+  static int n = 0;
+  acc += emscripten_get_now() - t0;
+  if (++n == 120) {
+    printf("avg frame work: %.2f ms\n", acc / n);
+    acc = 0;
+    n = 0;
+  }
 
   glfwSwapBuffers(win->window);
 }

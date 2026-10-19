@@ -93,7 +93,7 @@ void Renderer::mergeCascades() {
 
   std::string currentReadTex = "cascade3";
   for (int i = MAX_CASCADES - 1; i > 0; i--) {
-    lighting.incrementMergeUniforms(i);
+    lighting.incrementMergeUniforms(i - 1);
     std::string currentFBTex =
         (currentReadTex == "lightingTex") ? "tempLightingTex" : "lightingTex";
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,

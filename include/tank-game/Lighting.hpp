@@ -59,7 +59,8 @@ class Lighting {
  public:
   void initLocations(GLuint cascadeShader,
                      GLuint mergeShader,
-                     GLuint bakeShader);
+                     GLuint bakeShader,
+                     GLuint averageShader);
   void preloadMazeCollisions();
 
   void setCascadeInfoUniforms();
@@ -73,6 +74,7 @@ class Lighting {
   CascadeInfo cascadeInfo;
   MergeInfo mergeInfo;
   MazeBakeInfo bakeInfo;
+  GLint average_screenSizeLocation;
 
  private:
   CascadeInfoLocations cascadeLocations;

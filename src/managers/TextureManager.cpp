@@ -59,6 +59,9 @@ void TextureManager::makeBlankTexture(std::string name,
                                       GLint internalFormat,
                                       GLenum format,
                                       GLenum samplingMethod) {
+  if (texMap.contains(name))
+    glDeleteTextures(0, &texMap.at(name).texID);
+
   GLuint texID;
   glGenTextures(1, &texID);
   glBindTexture(GL_TEXTURE_2D, texID);
@@ -96,7 +99,7 @@ void TextureManager::makeBufferTextures(int screenW, int screenH) {
                    GL_LINEAR);
   makeBlankTexture("tempLightingTex", screenW, screenH, GL_RGBA16F,
                    GL_HALF_FLOAT, GL_LINEAR);
-  makeBlankTexture("mazeBakeTex", screenW, screenH, GL_RGBA32F, GL_FLOAT,
+  makeBlankTexture("mazeBakeTex", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
                    GL_NEAREST);
 }
 
