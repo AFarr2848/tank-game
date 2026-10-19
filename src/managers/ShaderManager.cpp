@@ -102,5 +102,11 @@ void ShaderManager::loadShaders() {
   glAttachShader(shaderProgramMap["mergeProgram"], mergeShaders[0]);
   glAttachShader(shaderProgramMap["mergeProgram"], mergeShaders[1]);
   glLinkProgram(shaderProgramMap["mergeProgram"]);
-  glUseProgram(shaderProgramMap["mergeProgram"]);
+
+  auto mazeBakeShaders = loadVertAndFragShaders(
+      "/shaders/bakeMazeCollisions.vert", "/shaders/bakeMazeCollisions.frag");
+  shaderProgramMap["mazeBakeProgram"] = glCreateProgram();
+  glAttachShader(shaderProgramMap["mazeBakeProgram"], mazeBakeShaders[0]);
+  glAttachShader(shaderProgramMap["mazeBakeProgram"], mazeBakeShaders[1]);
+  glLinkProgram(shaderProgramMap["mazeBakeProgram"]);
 }

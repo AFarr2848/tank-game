@@ -18,6 +18,21 @@ void Lighting::incrementMergeUniforms(int cascadeLevel) {
                           (mergeInfo.linearInterval * mergeInfo.linearInterval);
 }
 
+void Lighting::setMazeBakeUniforms() {
+  glUniform1i(bakeLocations.mazeSize, bakeInfo.mazeSize);
+  glUniform1i(bakeLocations.numCascades, MAX_CASCADES);
+  glUniform2f(bakeLocations.screenSize, bakeInfo.screenSize.x,
+              bakeInfo.screenSize.y);
+}
+void Lighting::initMazeBakeLocations(GLuint shaderProgram) {
+  bakeLocations.mazeSize =
+      glGetUniformLocation(shaderProgram, "mazeInfo.mazeSize");
+  bakeLocations.screenSize =
+      glGetUniformLocation(shaderProgram, "mazeInfo.screenSize");
+  bakeLocations.numCascades =
+      glGetUniformLocation(shaderProgram, "mazeInfo.numCascades");
+}
+
 void Lighting::setCascadeInfoUniforms() {
   glUniform1i(cascadeLocations.mazeSize, cascadeInfo.mazeSize);
   glUniform2f(cascadeLocations.screenSize, cascadeInfo.screenSize.x,
@@ -35,9 +50,12 @@ void Lighting::setMergeInfoUniforms() {
   glUniform1f(mergeLocations.rayInterval, mergeInfo.rayInterval);
 }
 
-void Lighting::initLocations(GLuint cascadeShader, GLuint mergeShader) {
+void Lighting::initLocations(GLuint cascadeShader,
+                             GLuint mergeShader,
+                             GLuint bakeShader) {
   initCascadeInfoLocations(cascadeShader);
   initMergeInfoLocations(mergeShader);
+  initMazeBakeLocations(bakeShader);
 }
 
 void Lighting::initCascadeInfoLocations(GLuint shaderProgram) {

@@ -31,6 +31,7 @@ class Renderer {
   void drawCascades(std::array<PointLight, MAX_LIGHTS>& lights);
   void mergeCascades();
   void combineLighting();
+  void bakeMazeCollisions();
 
  private:
   Window& win;

@@ -9,16 +9,15 @@ struct PointLight {
 };
 
 struct CascadeInfo {
-  int mazeSize;
-  vec2 screenSize;
   int cascadeLevel;
   float linearInterval;
   float rayInterval;
-  vec3 backgroundColor;
+  int mazeSize;
+  vec2 screenSize;
   int numLights;
 };
 
-uniform sampler2D wallTex;
+uniform sampler2D mazeDistTex;
 uniform CascadeInfo cascadeInfo;
 layout(std140) uniform LightBlock {
   PointLight lights[64];
@@ -26,14 +25,14 @@ layout(std140) uniform LightBlock {
 
 out vec4 FragColor;
 
-vec4 castRay(vec2 startPos, float angle, float minLength, float maxLength);
+vec4 castRay(vec2 startPos, float angle, float minLength, float maxLength, float mazeDist);
 float castMaze(vec2 start, vec2 dir, float maxLen);
 vec4 intersectCircleLight(vec2 startPos, vec2 rayDir, float minLength, float maxLength, PointLight light);
 vec2 toUV(vec2 coord);
 
 void main() {
-  float linearInterval = 2.0 * exp2(float(cascadeInfo.cascadeLevel));
-  float rayInterval = 2.0 * PI / (linearInterval * linearInterval);
+  float linearInterval = cascadeInfo.linearInterval;
+  float rayInterval = cascadeInfo.rayInterval;
 
   vec2 probeCenter = (floor(gl_FragCoord.xy / linearInterval) + 0.5) * linearInterval;
 
@@ -48,13 +47,14 @@ void main() {
   float minLength = pow(4.0, float(cascadeInfo.cascadeLevel));
   float maxLength = pow(4.0, float(cascadeInfo.cascadeLevel + 1));
 
-  FragColor = vec4(castRay(probeCenter, rayAngle, minLength, maxLength).rgba);
+  float mazeDist = texelFetch(mazeDistTex, ivec2(fragX, fragY), 0)[cascadeInfo.cascadeLevel];
+
+  FragColor = vec4(castRay(probeCenter, rayAngle, minLength, maxLength, mazeDist).rgba);
   return;
 }
 
-vec4 castRay(vec2 startPos, float angle, float minLength, float maxLength) {
+vec4 castRay(vec2 startPos, float angle, float minLength, float maxLength, float mazeDist) {
   vec2 rayDir = vec2(cos(angle), sin(angle));
-  float mazeDist = castMaze(startPos, rayDir, maxLength);
   bool hitWall = mazeDist < maxLength - 0.01;
 
   for (int i = 0; i < 64; i++) {
@@ -87,39 +87,4 @@ vec4 intersectCircleLight(vec2 startPos, vec2 rayDir, float minLength, float max
     return vec4(light.color, 0.0);
   }
   return vec4(vec3(0.0), 1.0);
-}
-
-float castMaze(vec2 start, vec2 dir, float maxLen) {
-  float cs = cascadeInfo.screenSize.x / float(cascadeInfo.mazeSize);
-  int N = cascadeInfo.mazeSize;
-
-  if (abs(dir.x) < 1e-6) dir.x = 1e-6;
-  if (abs(dir.y) < 1e-6) dir.y = 1e-6;
-
-  ivec2 stepI = ivec2(sign(dir));
-  vec2 invDir = 1.0 / dir;
-  ivec2 cell = ivec2(floor(start / cs));
-
-  vec2 nextB = (vec2(cell) + max(vec2(stepI), 0.0)) * cs;
-  vec2 tMax = (nextB - start) * invDir;
-  vec2 tDelta = abs(cs * invDir);
-
-  for (int i = 0; i < 128; i++) {
-    if (cell.x < 0 || cell.y < 0 || cell.x >= N || cell.y >= N) return maxLen;
-
-    if (tMax.x < tMax.y) {
-      if (tMax.x >= maxLen) return maxLen;
-      int line = cell.x + (stepI.x > 0 ? 1 : 0);
-      if (texelFetch(wallTex, ivec2(line, cell.y), 0).r > 0.5) return tMax.x;
-      cell.x += stepI.x;
-      tMax.x += tDelta.x;
-    } else {
-      if (tMax.y >= maxLen) return maxLen;
-      int line = cell.y + (stepI.y > 0 ? 1 : 0);
-      if (texelFetch(wallTex, ivec2(cell.x, line), 0).g > 0.5) return tMax.y;
-      cell.y += stepI.y;
-      tMax.y += tDelta.y;
-    }
-  }
-  return maxLen;
 }

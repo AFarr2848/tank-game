@@ -29,6 +29,12 @@ struct MergeInfo {
   float rayInterval;
   glm::vec2 screenSize;
 };
+struct MazeBakeInfo {
+  int mazeSize;
+  glm::vec2 screenSize;
+  int numCascades;
+};
+
 struct CascadeInfoLocations {
   GLint cascadeLevel;
   GLint linearInterval;
@@ -43,24 +49,35 @@ struct MergeInfoLocations {
   GLint rayInterval;
   GLint screenSize;
 };
+struct MazeBakeLocations {
+  GLint mazeSize;
+  GLint screenSize;
+  GLint numCascades;
+};
 
 class Lighting {
  public:
-  void initLocations(GLuint cascadeShader, GLuint mergeShader);
+  void initLocations(GLuint cascadeShader,
+                     GLuint mergeShader,
+                     GLuint bakeShader);
   void preloadMazeCollisions();
 
   void setCascadeInfoUniforms();
+  void setMazeBakeUniforms();
   void initCascadeInfoLocations(GLuint shaderProgram);
   void initMergeInfoLocations(GLuint shaderProgram);
+  void initMazeBakeLocations(GLuint shaderProgram);
   void setMergeInfoUniforms();
   void incrementMergeUniforms(int cascadeLevel);
   void incrementCascadeUniforms(int cascadeLevel);
   CascadeInfo cascadeInfo;
   MergeInfo mergeInfo;
+  MazeBakeInfo bakeInfo;
 
  private:
   CascadeInfoLocations cascadeLocations;
   MergeInfoLocations mergeLocations;
+  MazeBakeLocations bakeLocations;
 };
 
 }  // namespace Tnk

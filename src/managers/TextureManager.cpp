@@ -96,6 +96,8 @@ void TextureManager::makeBufferTextures(int screenW, int screenH) {
                    GL_LINEAR);
   makeBlankTexture("tempLightingTex", screenW, screenH, GL_RGBA16F,
                    GL_HALF_FLOAT, GL_LINEAR);
+  makeBlankTexture("mazeBakeTex", screenW, screenH, GL_RGBA32F, GL_FLOAT,
+                   GL_NEAREST);
 }
 
 void TextureManager::makeWallTex(Maze& maze) {

@@ -65,7 +65,7 @@ void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
   bufferMan.updateBuffer("lightBuffer", lights.data(),
                          sizeof(PointLight) * MAX_LIGHTS);
   bufferMan.get("lightBuffer").bind();
-  glBindTexture(GL_TEXTURE_2D, texMan.get("wallTex").texID);
+  glBindTexture(GL_TEXTURE_2D, texMan.get("mazeBakeTex").texID);
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, bufferMan.get("lightBuffer").bufferID);
   bufferMan.get("emptyBuffer").bind();
@@ -81,6 +81,7 @@ void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
 }
 
 void Renderer::mergeCascades() {
+  glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
   GLuint program = shaderMan.shaderProgramMap["mergeProgram"];
   glUseProgram(program);
   glUniform1i(glGetUniformLocation(shaderMan.shaderProgramMap["mergeProgram"],
@@ -148,4 +149,16 @@ void Renderer::drawImage() {
   bufferMan.get("emptyBuffer").bind();
   glBindTexture(GL_TEXTURE_2D, texMan.get("lightingTex").texID);
   glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+void Renderer::bakeMazeCollisions() {
+  glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                         texMan.get("mazeBakeTex").texID, 0);
+  GLuint shader = shaderMan.shaderProgramMap["mazeBakeProgram"];
+  glUseProgram(shader);
+  bufferMan.get("emptyBuffer").bind();
+  lighting.setMazeBakeUniforms();
+  glBindTexture(GL_TEXTURE_2D, texMan.get("wallTex").texID);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
 }

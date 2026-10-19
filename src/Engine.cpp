@@ -47,10 +47,16 @@ void Engine::startEngine() {
   bufferMan->updateBuffer("lineBuffer", game->mazeLines.data(),
                           sizeof(glm::vec2) * game->mazeLines.size());
   lighting->initLocations(shaderMan->shaderProgramMap["cascadeProgram"],
-                          shaderMan->shaderProgramMap["mergeProgram"]);
+                          shaderMan->shaderProgramMap["mergeProgram"],
+                          shaderMan->shaderProgramMap["mazeBakeProgram"]);
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_STENCIL_TEST);
+
+  lighting->bakeInfo = {.mazeSize = game->mazeSize,
+                        .screenSize = {win->width, win->height},
+                        .numCascades = MAX_CASCADES};
+  renderer->bakeMazeCollisions();
 
   std::cout << "Starting main loop..." << std::endl;
   emscripten_set_main_loop_arg(mainLoop, this, 0, 1);
@@ -70,6 +76,10 @@ void Engine::update() {
   timingData->lastTime = glfwGetTime();
   if (win->resized) {
     texMan->makeBufferTextures(win->width, win->height);
+
+    glDisable(GL_BLEND);
+    lighting->bakeInfo.screenSize = {win->width, win->height};
+    renderer->bakeMazeCollisions();
     win->resized = false;
   }
 

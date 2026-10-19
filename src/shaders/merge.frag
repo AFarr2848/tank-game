@@ -35,8 +35,8 @@ vec4 fetchHigher(ivec2 q, int rayNum, int Hi) {
 }
 
 void main() {
-  float L = 2.0 * exp2(float(mergeInfo.cascadeLevel));
-  float rayInterval = 2.0 * PI / (L * L);
+  float L = mergeInfo.linearInterval;
+  float rayInterval = mergeInfo.rayInterval;
   int Li = int(L);
 
   ivec2 frag = ivec2(gl_FragCoord.xy);
