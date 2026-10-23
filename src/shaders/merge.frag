@@ -35,16 +35,20 @@ vec4 fetchHigher(ivec2 q, int rayNum, int Hi) {
 }
 
 void main() {
+  ivec2 frag = ivec2(gl_FragCoord.xy);
+  vec4 low = texelFetch(lowCascade, frag, 0);
+  if (low.a == 0.0) {
+    FragColor = low;
+    return;
+  }
+
   float L = mergeInfo.linearInterval;
   float rayInterval = mergeInfo.rayInterval;
   int Li = int(L);
 
-  ivec2 frag = ivec2(gl_FragCoord.xy);
   vec2 probeCenter = (floor(gl_FragCoord.xy / L) + 0.5) * L;
   int rayNum = (frag.x % Li) + Li * (frag.y % Li);
   float angle = (float(rayNum) + 0.5) * rayInterval;
-  float maxLength = pow(4.0, float(mergeInfo.cascadeLevel + 1));
-  vec2 endpoint = probeCenter + vec2(cos(angle), sin(angle)) * maxLength;
 
   float H = L * 2.0;
   int Hi = Li * 2;
@@ -58,6 +62,5 @@ void main() {
       fetchHigher(base + ivec2(0, 1), rayNum, Hi) * (1.0 - w.x) * w.y +
       fetchHigher(base + ivec2(1, 1), rayNum, Hi) * w.x * w.y;
 
-  vec4 low = texelFetch(lowCascade, frag, 0);
   FragColor = vec4(low.rgb + low.a * high.rgb, low.a * high.a);
 }
