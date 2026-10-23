@@ -7,6 +7,7 @@ struct MergeInfo {
   float linearInterval;
   float rayInterval;
   vec2 screenSize;
+  float resolution;
 };
 
 struct RayEndpointInfo {
@@ -24,7 +25,7 @@ RayEndpointInfo getLowerEndpoint();
 vec2 getHigherCascadeUV(vec2 endpoint, int rayNum);
 
 vec4 fetchHigher(ivec2 q, int rayNum, int Hi) {
-  ivec2 probes = ivec2(mergeInfo.screenSize) / Hi;
+  ivec2 probes = ivec2(mergeInfo.screenSize * mergeInfo.resolution) / Hi;
   q = clamp(q, ivec2(0), probes - 1);
   vec4 sum = vec4(0.0);
   for (int k = 0; k < 4; k++) {
@@ -46,13 +47,14 @@ void main() {
   float rayInterval = mergeInfo.rayInterval;
   int Li = int(L);
 
-  vec2 probeCenter = (floor(gl_FragCoord.xy / L) + 0.5) * L;
+  vec2 probeCenter = (floor(gl_FragCoord.xy / L) + 0.5) * L / mergeInfo.resolution;
   int rayNum = (frag.x % Li) + Li * (frag.y % Li);
   float angle = (float(rayNum) + 0.5) * rayInterval;
 
   float H = L * 2.0;
   int Hi = Li * 2;
-  vec2 f = probeCenter / float(Hi) - 0.5;
+  ivec2 tile = frag / Li;
+  vec2 f = (vec2(tile) + 0.5) * 0.5 - 0.5;
   ivec2 base = ivec2(floor(f));
   vec2 w = fract(f);
 

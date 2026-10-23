@@ -2,6 +2,7 @@
 #include <GLES3/gl3.h>
 #include <filesystem>
 #include <unordered_map>
+#include "glm/ext/vector_float2.hpp"
 namespace Tnk {
 class Maze;
 struct Texture {
@@ -15,6 +16,7 @@ class TextureManager {
   void makeTextures(int screenW, int screenH);
   void makeBufferTextures(int screenW, int screenH);
   void makeWallTex(Maze& maze);
+  void makeLightingTextures(glm::vec2 texSize);
 
  private:
   std::unordered_map<std::string, Texture> texMap;

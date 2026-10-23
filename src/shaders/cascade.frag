@@ -15,6 +15,7 @@ struct CascadeInfo {
   int mazeSize;
   vec2 screenSize;
   int numLights;
+  float resolution;
 };
 
 uniform sampler2D mazeDistTex;
@@ -34,7 +35,7 @@ void main() {
   float linearInterval = cascadeInfo.linearInterval;
   float rayInterval = cascadeInfo.rayInterval;
 
-  vec2 probeCenter = (floor(gl_FragCoord.xy / linearInterval) + 0.5) * linearInterval;
+  vec2 probeCenter = (floor(gl_FragCoord.xy / linearInterval) + 0.5) * linearInterval / cascadeInfo.resolution;
 
   int fragX = int(gl_FragCoord.x);
   int fragY = int(gl_FragCoord.y);
@@ -44,12 +45,13 @@ void main() {
 
   float rayAngle = (float(rayNum) + 0.5) * rayInterval;
 
-  float minLength = pow(4.0, float(cascadeInfo.cascadeLevel));
-  float maxLength = pow(4.0, float(cascadeInfo.cascadeLevel + 1));
+  float minLength = pow(4.0, float(cascadeInfo.cascadeLevel)) * (1.0 / cascadeInfo.resolution);
+  float maxLength = pow(4.0, float(cascadeInfo.cascadeLevel + 1)) * (1.0 / cascadeInfo.resolution);
 
   float mazeDist = texelFetch(mazeDistTex, ivec2(fragX, fragY), 0)[cascadeInfo.cascadeLevel];
 
-  FragColor = vec4(castRay(probeCenter, rayAngle, minLength, maxLength, mazeDist).rgba);
+  //FragColor = vec4(vec3(mazeDist / maxLength), 1.0);
+  FragColor = vec4(castRay(probeCenter, rayAngle, minLength, maxLength, mazeDist).rgb, 1.0);
   return;
 }
 

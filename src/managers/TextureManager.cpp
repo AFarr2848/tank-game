@@ -87,20 +87,23 @@ void TextureManager::makeTextures(int screenW, int screenH) {
 void TextureManager::makeBufferTextures(int screenW, int screenH) {
   makeBlankTexture("mazeTex", screenW, screenH, GL_RGBA8, GL_UNSIGNED_BYTE,
                    GL_NEAREST);
-  makeBlankTexture("cascade0", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+}
+
+void TextureManager::makeLightingTextures(glm::vec2 texSize) {
+  makeBlankTexture("cascade0", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
                    GL_NEAREST);
-  makeBlankTexture("cascade1", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+  makeBlankTexture("cascade1", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
                    GL_NEAREST);
-  makeBlankTexture("cascade2", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+  makeBlankTexture("cascade2", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
                    GL_NEAREST);
-  makeBlankTexture("cascade3", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
+  makeBlankTexture("cascade3", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
                    GL_NEAREST);
-  makeBlankTexture("lightingTex", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
-                   GL_LINEAR);
-  makeBlankTexture("tempLightingTex", screenW, screenH, GL_RGBA16F,
+  makeBlankTexture("lightingTex", texSize.x, texSize.y, GL_RGBA16F,
                    GL_HALF_FLOAT, GL_LINEAR);
-  makeBlankTexture("mazeBakeTex", screenW, screenH, GL_RGBA16F, GL_HALF_FLOAT,
-                   GL_NEAREST);
+  makeBlankTexture("tempLightingTex", texSize.x, texSize.y, GL_RGBA16F,
+                   GL_HALF_FLOAT, GL_LINEAR);
+  makeBlankTexture("mazeBakeTex", texSize.x, texSize.y, GL_RGBA16F,
+                   GL_HALF_FLOAT, GL_NEAREST);
 }
 
 void TextureManager::makeWallTex(Maze& maze) {

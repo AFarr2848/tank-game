@@ -134,9 +134,7 @@ void Renderer::combineLighting() {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texMan.get("mazeTex").texID);
 
-  glUniform2f(glGetUniformLocation(shaderMan.shaderProgramMap["averageProgram"],
-                                   "screenSize"),
-              win.width, win.height);
+  glUniform1f(lighting.average_resolutionLocation, lighting.lightingResolution);
 
   bufferMan.get("emptyBuffer").bind();
   glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -22,17 +22,20 @@ struct CascadeInfo {
   int mazeSize;
   glm::vec2 screenSize;
   int numLights;
+  float resolution;
 };
 struct MergeInfo {
   int cascadeLevel;
   float linearInterval;
   float rayInterval;
   glm::vec2 screenSize;
+  float resolution;
 };
 struct MazeBakeInfo {
   int mazeSize;
   glm::vec2 screenSize;
   int numCascades;
+  float resolution;
 };
 
 struct CascadeInfoLocations {
@@ -42,17 +45,20 @@ struct CascadeInfoLocations {
   GLint mazeSize;
   GLint screenSize;
   GLint numLights;
+  GLint resolution;
 };
 struct MergeInfoLocations {
   GLint cascadeLevel;
   GLint linearInterval;
   GLint rayInterval;
   GLint screenSize;
+  GLint resolution;
 };
 struct MazeBakeLocations {
   GLint mazeSize;
   GLint screenSize;
   GLint numCascades;
+  GLint resolution;
 };
 
 class Lighting {
@@ -74,7 +80,8 @@ class Lighting {
   CascadeInfo cascadeInfo;
   MergeInfo mergeInfo;
   MazeBakeInfo bakeInfo;
-  GLint average_screenSizeLocation;
+  GLint average_resolutionLocation;
+  float lightingResolution = 0.5;
 
  private:
   CascadeInfoLocations cascadeLocations;

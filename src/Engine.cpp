@@ -42,6 +42,8 @@ void Engine::startEngine() {
   bufferMan->makeBuffers();
   std::cout << "Making textures..." << std::endl;
   texMan->makeTextures(win->width, win->height);
+  texMan->makeLightingTextures(glm::vec2(win->width, win->height) *
+                               glm::vec2(lighting->lightingResolution));
   texMan->makeWallTex(game->maze);
 
   bufferMan->updateBuffer("lineBuffer", game->mazeLines.data(),
@@ -78,6 +80,8 @@ void Engine::update() {
   timingData->lastTime = glfwGetTime();
   if (win->resized) {
     texMan->makeBufferTextures(win->width, win->height);
+    texMan->makeLightingTextures(glm::vec2(win->width, win->height) *
+                                 glm::vec2(lighting->lightingResolution));
 
     glDisable(GL_BLEND);
     lighting->bakeInfo.screenSize = {win->width, win->height};
