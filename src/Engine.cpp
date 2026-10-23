@@ -55,6 +55,7 @@ void Engine::startEngine() {
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_STENCIL_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   lighting->bakeInfo = {.mazeSize = game->mazeSize,
                         .screenSize = {win->width, win->height},
@@ -74,40 +75,24 @@ void Engine::mainLoop(void* arg) {
 }
 
 void Engine::update() {
-  double t0 = emscripten_get_now();
-  glfwPollEvents();
-  timingData->deltaTime = glfwGetTime() - timingData->lastTime;
-  timingData->lastTime = glfwGetTime();
   if (win->resized) {
-    texMan->makeBufferTextures(win->width, win->height);
-    texMan->makeLightingTextures(glm::vec2(win->width, win->height) *
-                                 glm::vec2(lighting->lightingResolution));
-
-    glDisable(GL_BLEND);
-    lighting->bakeInfo.screenSize = {win->width, win->height};
-    renderer->bakeMazeCollisions();
+    screenResized();
     win->resized = false;
   }
 
+  timingData->incrementTiming(emscripten_get_now());
+  glfwPollEvents();
   inputHelper->updateInputs();
   game->updateGame();
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  updateDrawUniforms();
 
   glBindFramebuffer(GL_FRAMEBUFFER, texMan->fbo);
   renderer->drawMaze(game->mazeLines);
 
-  lighting->cascadeInfo.screenSize = {win->width, win->height};
-  lighting->mergeInfo.screenSize = {win->width, win->height};
-  lighting->cascadeInfo.numLights = game->numLights;
-  lighting->cascadeInfo.mazeSize = game->mazeSize;
-  glDisable(GL_BLEND);
   auto lights = game->getLights();
   renderer->drawCascades(lights);
   renderer->mergeCascades();
 
-  glEnable(GL_BLEND);
   auto sprites = game->getSprites();
   renderer->drawSprites(sprites);
 
@@ -116,17 +101,31 @@ void Engine::update() {
   unsigned char px[4];
   glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px);  // forces a sync
 
-  static double acc = 0;
-  static int n = 0;
-  acc += emscripten_get_now() - t0;
-  if (++n == 120) {
-    printf("avg frame work: %.2f ms\n", acc / n);
-    acc = 0;
-    n = 0;
-  }
-
   glfwSwapBuffers(win->window);
 }
 
 Engine::~Engine() = default;
 Engine::Engine() = default;
+
+void Engine::screenResized() {
+  texMan->makeBufferTextures(win->width, win->height);
+  texMan->makeLightingTextures(glm::vec2(win->width, win->height) *
+                               glm::vec2(lighting->lightingResolution));
+
+  lighting->bakeInfo.screenSize = {win->width, win->height};
+  renderer->bakeMazeCollisions();
+}
+
+void Engine::updateDrawUniforms() {
+  lighting->cascadeInfo.screenSize = {win->width, win->height};
+  lighting->mergeInfo.screenSize = {win->width, win->height};
+  lighting->cascadeInfo.numLights = game->numLights;
+  lighting->cascadeInfo.mazeSize = game->mazeSize;
+}
+
+void Engine::changeLightingResolution(float newResolution) {
+  lighting->lightingResolution = newResolution;
+  texMan->makeLightingTextures(glm::vec2(win->width, win->height) *
+                               glm::vec2(lighting->lightingResolution));
+  renderer->bakeMazeCollisions();
+}

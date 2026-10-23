@@ -23,6 +23,7 @@ void Renderer::drawScreen() {
 }
 
 void Renderer::drawMaze(const std::vector<glm::vec2>& lines) {
+  glEnable(GL_BLEND);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texMan.get("mazeTex").texID, 0);
 
@@ -39,6 +40,7 @@ void Renderer::drawMaze(const std::vector<glm::vec2>& lines) {
 }
 
 void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
+  glEnable(GL_BLEND);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texMan.get("mazeTex").texID, 0);
   glUseProgram(shaderMan.shaderProgramMap["spriteProgram"]);
@@ -59,6 +61,7 @@ void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
 }
 
 void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
+  glDisable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
   GLuint program = shaderMan.shaderProgramMap["cascadeProgram"];
   glUseProgram(program);
@@ -81,6 +84,7 @@ void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
 }
 
 void Renderer::mergeCascades() {
+  glDisable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
   GLuint program = shaderMan.shaderProgramMap["mergeProgram"];
   glUseProgram(program);
@@ -118,6 +122,7 @@ void Renderer::mergeCascades() {
 }
 
 void Renderer::combineLighting() {
+  glEnable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   GLuint shader = shaderMan.shaderProgramMap["averageProgram"];
   glUseProgram(shader);
@@ -150,6 +155,7 @@ void Renderer::drawImage() {
 }
 
 void Renderer::bakeMazeCollisions() {
+  glDisable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texMan.get("mazeBakeTex").texID, 0);

@@ -27,7 +27,6 @@ std::array<PointLight, MAX_LIGHTS> Game::getLights() {
     lights[i + 1] = bulletVec[i].light;
   }
 
-  std::cout << numLights << std::endl;
   return lights;
 }
 

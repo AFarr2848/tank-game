@@ -51,7 +51,7 @@ void main() {
   float mazeDist = texelFetch(mazeDistTex, ivec2(fragX, fragY), 0)[cascadeInfo.cascadeLevel];
 
   //FragColor = vec4(vec3(mazeDist / maxLength), 1.0);
-  FragColor = vec4(castRay(probeCenter, rayAngle, minLength, maxLength, mazeDist).rgb, 1.0);
+  FragColor = vec4(castRay(probeCenter, rayAngle, minLength, maxLength, mazeDist).rgba);
   return;
 }
 
