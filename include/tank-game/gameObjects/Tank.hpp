@@ -8,6 +8,11 @@ class Maze;
 class Tank {
  public:
   Tank(Rect bounds) : bounds(bounds), sprite(this->bounds) {}
+  Tank(Rect bounds, glm::vec3 lightColor)
+      : bounds(bounds), sprite(this->bounds) {
+    light = PointLight{
+        .location = bounds.center, .radius = 0.02, .color = lightColor};
+  }
   Tank() : bounds(), sprite(this->bounds) {
     light = PointLight{.location = bounds.center,
                        .radius = 0.02,
