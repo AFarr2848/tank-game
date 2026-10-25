@@ -6,6 +6,7 @@ struct MazeBakeInfo {
   vec2 screenSize;
   int numCascades;
   float resolution;
+  float initialLinearInterval;
 };
 
 uniform sampler2D mazeTex;
@@ -18,7 +19,7 @@ float castMaze(vec2 start, vec2 dir, float maxLen);
 void main() {
   float outColor[4];
   for (int c = 0; c < mazeInfo.numCascades; c++) {
-    float L = 2.0 * exp2(float(c));
+    float L = mazeInfo.initialLinearInterval * exp2(float(c));
     vec2 probeCenter = (floor(gl_FragCoord.xy / L) + 0.5) * L / mazeInfo.resolution;
     int Li = int(L);
     int rayNum = (int(gl_FragCoord.x) % Li) + Li * (int(gl_FragCoord.y) % Li);

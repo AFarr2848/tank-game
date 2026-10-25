@@ -6,7 +6,8 @@ using namespace Tnk;
 
 void Lighting::incrementCascadeUniforms(int cascadeLevel) {
   cascadeInfo.cascadeLevel = cascadeLevel;
-  cascadeInfo.linearInterval = 2.0 * exp2(float(cascadeInfo.cascadeLevel));
+  cascadeInfo.linearInterval =
+      INITIAL_LINEAR_INTERVAL * exp2(float(cascadeInfo.cascadeLevel));
   cascadeInfo.rayInterval =
       2.0 * std::numbers::pi /
       (cascadeInfo.linearInterval * cascadeInfo.linearInterval);
@@ -14,7 +15,8 @@ void Lighting::incrementCascadeUniforms(int cascadeLevel) {
 };
 void Lighting::incrementMergeUniforms(int cascadeLevel) {
   mergeInfo.cascadeLevel = cascadeLevel;
-  mergeInfo.linearInterval = 2.0 * exp2(float(mergeInfo.cascadeLevel));
+  mergeInfo.linearInterval =
+      INITIAL_LINEAR_INTERVAL * exp2(float(mergeInfo.cascadeLevel));
   mergeInfo.rayInterval = 2.0 * std::numbers::pi /
                           (mergeInfo.linearInterval * mergeInfo.linearInterval);
   mergeInfo.resolution = lightingResolution;
@@ -26,6 +28,7 @@ void Lighting::setMazeBakeUniforms() {
   glUniform2f(bakeLocations.screenSize, bakeInfo.screenSize.x,
               bakeInfo.screenSize.y);
   glUniform1f(bakeLocations.resolution, lightingResolution);
+  glUniform1f(bakeLocations.initialLinearInterval, INITIAL_LINEAR_INTERVAL);
 }
 void Lighting::initMazeBakeLocations(GLuint shaderProgram) {
   bakeLocations.mazeSize =
@@ -36,6 +39,8 @@ void Lighting::initMazeBakeLocations(GLuint shaderProgram) {
       glGetUniformLocation(shaderProgram, "mazeInfo.numCascades");
   bakeLocations.resolution =
       glGetUniformLocation(shaderProgram, "mazeInfo.resolution");
+  bakeLocations.initialLinearInterval =
+      glGetUniformLocation(shaderProgram, "mazeInfo.initialLinearInterval");
 }
 
 void Lighting::setCascadeInfoUniforms() {

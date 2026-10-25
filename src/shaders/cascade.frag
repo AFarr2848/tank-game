@@ -39,13 +39,12 @@ void main() {
 
   int fragX = int(gl_FragCoord.x);
   int fragY = int(gl_FragCoord.y);
-
   int intervalInt = int(linearInterval);
   int rayNum = (fragX % intervalInt) + intervalInt * (fragY % intervalInt);
 
   float rayAngle = (float(rayNum) + 0.5) * rayInterval;
 
-  float minLength = pow(4.0, float(cascadeInfo.cascadeLevel)) * (1.0 / cascadeInfo.resolution);
+  float minLength = (cascadeInfo.cascadeLevel == 0) ? 0.0 : pow(4.0, float(cascadeInfo.cascadeLevel)) * (1.0 / cascadeInfo.resolution);
   float maxLength = pow(4.0, float(cascadeInfo.cascadeLevel + 1)) * (1.0 / cascadeInfo.resolution);
 
   float mazeDist = texelFetch(mazeDistTex, ivec2(fragX, fragY), 0)[cascadeInfo.cascadeLevel];
@@ -59,12 +58,17 @@ vec4 castRay(vec2 startPos, float angle, float minLength, float maxLength, float
   vec2 rayDir = vec2(cos(angle), sin(angle));
   bool hitWall = mazeDist < maxLength - 0.01;
 
+  vec3 raySum = vec3(0.0);
+  float transmittance = 1.0;
   for (int i = 0; i < 64; i++) {
     if (i >= cascadeInfo.numLights) break;
     vec4 hit = intersectCircleLight(startPos, rayDir, minLength, mazeDist, lights[i]);
-    if (hit.a == 0.0) return hit;
+    raySum += transmittance * hit.rgb;
+    transmittance *= hit.a;
   }
-  return vec4(0.0, 0.0, 0.0, hitWall ? 0.0 : 1.0);
+  if (hitWall)
+    transmittance = 0.0;
+  return vec4(raySum, transmittance);
 }
 
 vec2 toUV(vec2 coord) {

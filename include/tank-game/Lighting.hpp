@@ -6,6 +6,8 @@ namespace Tnk {
 const int MAX_LIGHTS = 64;
 const int INTERVAL_INCREASE_FACTOR = 4;
 const int MAX_CASCADES = 4;
+// doesnt work
+const float INITIAL_LINEAR_INTERVAL = 2.0;
 
 struct PointLight {
   glm::vec2 location;
@@ -58,6 +60,7 @@ struct MazeBakeLocations {
   GLint mazeSize;
   GLint screenSize;
   GLint numCascades;
+  GLint initialLinearInterval;
   GLint resolution;
 };
 
