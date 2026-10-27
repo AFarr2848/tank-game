@@ -86,6 +86,8 @@ class Lighting {
   GLint average_resolutionLocation;
   float lightingResolution = 0.5;
 
+  bool lightingEnabled = false;
+
  private:
   CascadeInfoLocations cascadeLocations;
   MergeInfoLocations mergeLocations;

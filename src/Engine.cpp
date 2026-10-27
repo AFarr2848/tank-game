@@ -89,14 +89,21 @@ void Engine::update() {
   glBindFramebuffer(GL_FRAMEBUFFER, texMan->fbo);
   renderer->drawMaze(game->mazeLines);
 
-  auto lights = game->getLights();
-  renderer->drawCascades(lights);
-  renderer->mergeCascades();
+  if (lighting->lightingEnabled) {
+    auto lights = game->getLights();
+    renderer->drawCascades(lights);
+    renderer->mergeCascades();
+  }
 
   auto sprites = game->getSprites();
   renderer->drawSprites(sprites);
 
-  renderer->combineLighting();
+  if (lighting->lightingEnabled) {
+    renderer->combineLighting();
+
+  } else {
+    renderer->drawImage();
+  }
 
   unsigned char px[4];
   glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px);  // forces a sync

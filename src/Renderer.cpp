@@ -150,7 +150,7 @@ void Renderer::drawImage() {
   GLuint shader = shaderMan.shaderProgramMap["imageProgram"];
   glUseProgram(shader);
   bufferMan.get("emptyBuffer").bind();
-  glBindTexture(GL_TEXTURE_2D, texMan.get("lightingTex").texID);
+  glBindTexture(GL_TEXTURE_2D, texMan.get("mazeTex").texID);
   glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
