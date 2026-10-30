@@ -26,12 +26,15 @@ class Game {
  private:
   InputHelper& inputHelper;
   TimingData& timingData;
-  int maxTankValue = 3;
+  int maxTankValue = 1;
   void collideBullets();
   void spawnTank(EnemyTank tank);
   void trySpawnTank();
   int getTotalTankValues();
   glm::vec2 getSpawnLocation();
+  glm::ivec2 getTankMazeCoords(Tank& tank);
+  glm::vec2 mazeToNdcCoords(glm::ivec2 mazeCoords);
+  std::vector<glm::ivec2> findMazePath(glm::ivec2 start, glm::ivec2 end);
 
   void getInputs();
 

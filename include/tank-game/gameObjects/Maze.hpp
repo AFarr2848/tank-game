@@ -16,6 +16,7 @@ class Maze {
 
   void makeMaze(int mazeSize);
   std::vector<glm::vec2> makeLines();
+  std::vector<glm::ivec2> getConnectedCells(glm::ivec2 cellCoords);
 
  private:
   std::random_device rd;

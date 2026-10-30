@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "glm/ext/vector_float2.hpp"
+#include "tank-game/Game.hpp"
 #include "tank-game/Geometry.hpp"
 #include "tank-game/gameObjects/Maze.hpp"
 

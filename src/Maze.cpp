@@ -1,7 +1,6 @@
 #include "tank-game/gameObjects/Maze.hpp"
 #include <algorithm>
 #include <glm/glm.hpp>
-#include <iostream>
 #include <random>
 #include <vector>
 using namespace Tnk;
@@ -89,6 +88,21 @@ void Maze::changeWalls(glm::vec2 cellCoords, glm::vec2 carveDir) {
   if (carveDir.y == -1)
     cell.wallNorth = false;
   cell.visited = true;
+}
+
+std::vector<glm::ivec2> Maze::getConnectedCells(glm::ivec2 cellCoords) {
+  assert(cellCoords.x < mazeSize && cellCoords.y < mazeSize);
+  MazeCell& cell = cells.at(cellCoords.x).at(cellCoords.y);
+  std::vector<glm::ivec2> dirs;
+  if (!cell.wallNorth && cellCoords.x > 0)
+    dirs.push_back({cellCoords.x - 1, cellCoords.y});
+  if (!cell.wallSouth && cellCoords.x < mazeSize - 1)
+    dirs.push_back({cellCoords.x + 1, cellCoords.y});
+  if (!cell.wallWest && cellCoords.y > 0)
+    dirs.push_back({cellCoords.x, cellCoords.y - 1});
+  if (!cell.wallEast && cellCoords.y < mazeSize - 1)
+    dirs.push_back({cellCoords.x, cellCoords.y + 1});
+  return dirs;
 }
 
 void Maze::makeMaze(int mazeSize) {
