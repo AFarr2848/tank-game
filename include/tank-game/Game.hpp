@@ -1,7 +1,7 @@
 #pragma once
 #include "tank-game/gameObjects/EnemyTank.hpp"
 #include "tank-game/gameObjects/Maze.hpp"
-#include "tank-game/gameObjects/Tank.hpp"
+#include "tank-game/gameObjects/PlayerTank.hpp"
 
 namespace Tnk {
 class InputHelper;
@@ -13,7 +13,7 @@ class Game {
   void startGame();
   void getMazeLines();
   std::vector<glm::vec2> mazeLines;
-  Tank playerTank;
+  PlayerTank playerTank;
   std::vector<EnemyTank> enemyTanks;
   void updateGame();
   int mazeSize;

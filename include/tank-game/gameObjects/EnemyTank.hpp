@@ -1,25 +1,30 @@
 #pragma once
 #include "tank-game/gameObjects/Tank.hpp"
 namespace Tnk {
-class TankAI {
+struct TankAI {
   std::vector<glm::ivec2> path;
   float thinkTimer = 0;
-  float aimAngle = 0;
-  int maxRicochets = 0;
+  float desireAngle;
+  int maxRicochets;
+};
+struct EnemyTankCreateInfo : public TankCreateInfo {
+  int tankValue = 1;
+  int maxRicochets = 1;
 };
 
 class EnemyTank : public Tank {
  public:
-  EnemyTank(Rect bounds, std::string sprite, glm::vec3 lightColor)
-      : Tank(bounds) {
-    this->sprite.texture = sprite;
-    this->light.color = lightColor;
+  EnemyTank(EnemyTankCreateInfo info) : Tank(info) {
+    tankAI.maxRicochets = info.maxRicochets;
+    tankValue = info.tankValue;
   };
 
-  int tankValue = 1;
+  int tankValue;
   TankAI tankAI;
 
   void updateAI();
+  void updateMovement();
+  void update(float deltaTime) override;
 };
 
 }  // namespace Tnk

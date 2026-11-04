@@ -9,13 +9,22 @@
 #include "tank-game/Lighting.hpp"
 #include "tank-game/TimingData.hpp"
 #include "tank-game/gameObjects/Bullet.hpp"
+#include "tank-game/gameObjects/EnemyTank.hpp"
+#include "tank-game/gameObjects/PlayerTank.hpp"
+#include "tank-game/gameObjects/Tank.hpp"
 using namespace Tnk;
 void Game::startGame() {
   maze.makeMaze(6);
   getMazeLines();
-  Rect tankBounds = {
+  PlayerCreateInfo playerInfo;
+  playerInfo.bounds = {
       .center = {-0.9, -0.9}, .size = {0.11, 0.075}, .rotation = 0};
-  playerTank = Tank(tankBounds);
+  playerInfo.texture = "playerTank";
+  playerInfo.lightColor = glm::vec3(10.0f);
+  playerInfo.moveSpeed = 0.15;
+  playerInfo.turnSpeed = 0.07;
+
+  playerTank = PlayerTank(playerInfo);
   playerTank.light.location = playerTank.bounds.center;
   playerTank.sprite.texture = "playerTank";
   mazeSize = maze.mazeSize;
@@ -65,8 +74,13 @@ void Game::trySpawnTank() {
         .center = getSpawnLocation(), .size = {0.11, 0.075}, .rotation = 0};
     std::cout << "Tank spawned!" << std::endl;
     std::cout << glm::to_string(bounds.center) << std::endl;
-    enemyTanks.push_back(
-        EnemyTank(bounds, "playerTank", glm::vec3(7.0, 0.0, 0.0)));
+    EnemyTankCreateInfo createInfo;
+    createInfo.tankValue = 1;
+    createInfo.maxRicochets = 1;
+    createInfo.texture = "playerTank";
+    createInfo.bounds = bounds;
+
+    enemyTanks.push_back(EnemyTank(createInfo));
   }
 }
 
@@ -174,6 +188,10 @@ void Game::getInputs() {
 }
 
 void Game::updateGame() {
+  playerTank.update(timingData.deltaTime);
+  for (auto& tnk : enemyTanks) {
+    tnk.update(timingData.deltaTime);
+  }
   for (int i = 0; i < bulletVec.size(); i++) {
     Bullet& b = bulletVec.at(i);
     b.moveBullet(timingData.deltaTime, maze);

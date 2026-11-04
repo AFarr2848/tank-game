@@ -1,23 +1,20 @@
-#include "tank-game/gameObjects/Tank.hpp"
-#include <glm/gtx/string_cast.hpp>
-#include <iostream>
-#include <stdexcept>
-#include "glm/ext/vector_float2.hpp"
-#include "tank-game/Game.hpp"
-#include "tank-game/Geometry.hpp"
-#include "tank-game/gameObjects/Maze.hpp"
 
+#include "tank-game/gameObjects/PlayerTank.hpp"
 using namespace Tnk;
 
-void Tank::moveTank(glm::vec2 dir) {
+void PlayerTank::moveTank(glm::vec2 dir) {
   bounds.center += dir;
   light.location = bounds.center;
 }
-void Tank::turnTank(float angle) {
+void PlayerTank::turnTank(float angle) {
   bounds.rotation += angle;
 }
 
-void Tank::shoot(std::vector<Bullet>& bulletVec) {
+void PlayerTank::update(float deltaTime) {
+  sprite.bounds = bounds;
+}
+
+void PlayerTank::shoot(std::vector<Bullet>& bulletVec) {
   int bulletsOwned = 0;
   for (Bullet& bullet : bulletVec) {
     if (bullet.owner == this)
@@ -39,7 +36,7 @@ void Tank::shoot(std::vector<Bullet>& bulletVec) {
   }
 }
 
-glm::vec2 Tank::checkMoveCollision(float move, Maze& maze) {
+glm::vec2 PlayerTank::checkMoveCollision(float move, Maze& maze) {
   glm::vec2 moveVec = glm::vec2(std::cos(bounds.rotation) * move,
                                 std::sin(bounds.rotation) * move);
 
