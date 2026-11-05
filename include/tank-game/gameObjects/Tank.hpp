@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+#include <numbers>
 #include "tank-game/Geometry.hpp"
 #include "tank-game/Lighting.hpp"
 #include "tank-game/gameObjects/Bullet.hpp"
@@ -12,8 +14,8 @@ struct TankCreateInfo {
   Rect bounds = Rect();
   std::string texture = "playerTank";
   glm::vec3 lightColor = {10.0f, 10.0f, 10.0f};
-  float moveSpeed = 0.3;
-  float turnSpeed = 0.05;
+  float moveSpeed = 0.4;
+  float turnSpeed = 2;
 };
 
 class Tank {
@@ -56,6 +58,40 @@ class Tank {
   }
 
   bool operator==(const Tank& other) const { return this == &other; }
+
+  void moveTank(glm::vec2 dir) {
+    bounds.center += dir;
+    light.location = bounds.center;
+  }
+  void turnTank(float angle) {
+    bounds.rotation += angle;
+    if (bounds.rotation < 0)
+      bounds.rotation += 2 * std::numbers::pi;
+    if (bounds.rotation > 2 * std::numbers::pi)
+      bounds.rotation -= 2 * std::numbers::pi;
+  }
+
+  void shoot(std::vector<Bullet>& bulletVec) {
+    int bulletsOwned = 0;
+    for (Bullet& bullet : bulletVec) {
+      if (bullet.owner == this)
+        bulletsOwned++;
+    }
+    if (bulletsOwned < 2) {
+      Bullet bullet(
+          Rect{
+
+              .center = bounds.center +
+                        (bounds.getFront() * bounds.size.y / glm::vec2(2)),
+              .size = glm::vec2(0.03),
+              .rotation = 0
+
+          },
+          *this);
+      bullet.vel = bounds.getFront() * glm::vec2(0.6);
+      bulletVec.push_back(bullet);
+    }
+  }
 
   virtual ~Tank() {}
 

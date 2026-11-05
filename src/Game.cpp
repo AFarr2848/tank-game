@@ -1,6 +1,7 @@
 #include "tank-game/Game.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <cmath>
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <queue>
@@ -68,7 +69,6 @@ glm::vec2 Game::mazeToNdcCoords(glm::ivec2 mazeCoords) {
 }
 
 void Game::trySpawnTank() {
-  std::cout << getTotalTankValues() << std::endl;
   if (getTotalTankValues() < maxTankValue) {
     Rect bounds = {
         .center = getSpawnLocation(), .size = {0.11, 0.075}, .rotation = 0};
@@ -99,7 +99,21 @@ glm::vec2 Game::getSpawnLocation() {
   throw std::runtime_error("oopies tanks spawn failed oops");
 }
 
-std::vector<glm::ivec2> Game::findMazePath(glm::ivec2 start, glm::ivec2 end) {
+void Game::updateTankAI(EnemyTank& tank) {
+  if (tank.tankAI.thinkTimer > AI_THINK_INTERVAL) {
+    tank.tankAI.thinkTimer = 0;
+    glm::vec2 targetDiff = tank.bounds.center - tank.tankAI.moveTarget;
+    if (hypot(targetDiff.x, targetDiff.y) < 0.1 ||
+        tank.tankAI.moveTarget == glm::vec2(-1)) {
+      auto path =
+          findMazePath(getTankMazeCoords(tank), getTankMazeCoords(playerTank));
+      if (path.size() > 1)
+        tank.tankAI.moveTarget = path[1];
+    }
+  }
+}
+
+std::vector<glm::vec2> Game::findMazePath(glm::ivec2 start, glm::ivec2 end) {
   struct Node {
     glm::ivec2 coord;
     int parentIndex;
@@ -147,10 +161,10 @@ std::vector<glm::ivec2> Game::findMazePath(glm::ivec2 start, glm::ivec2 end) {
     return {};
   }
 
-  std::vector<glm::ivec2> path;
+  std::vector<glm::vec2> path;
   int curr = endIndex;
   while (curr != -1) {
-    path.push_back(allNodes[curr].coord);
+    path.push_back(mazeToNdcCoords(allNodes[curr].coord));
     curr = allNodes[curr].parentIndex;
   }
 
@@ -174,15 +188,15 @@ void Game::getInputs() {
   auto isKeyDown = [this](int key) { return this->inputHelper.isKeyDown(key); };
 
   if (isKeyDown(GLFW_KEY_W))
-    playerTank.moveTank(
-        playerTank.checkMoveCollision(timingData.deltaTime * 0.4, maze));
+    playerTank.moveTank(playerTank.checkMoveCollision(
+        timingData.deltaTime * playerTank.moveSpeed, maze));
   if (isKeyDown(GLFW_KEY_S))
-    playerTank.moveTank(
-        playerTank.checkMoveCollision(-timingData.deltaTime * 0.4, maze));
+    playerTank.moveTank(playerTank.checkMoveCollision(
+        -timingData.deltaTime * playerTank.moveSpeed, maze));
   if (isKeyDown(GLFW_KEY_A))
-    playerTank.turnTank(timingData.deltaTime * 2);
+    playerTank.turnTank(timingData.deltaTime * playerTank.turnSpeed);
   if (isKeyDown(GLFW_KEY_D))
-    playerTank.turnTank(-timingData.deltaTime * 2);
+    playerTank.turnTank(-timingData.deltaTime * playerTank.turnSpeed);
   if (this->inputHelper.isKeyDownToggle(GLFW_KEY_SPACE))
     playerTank.shoot(bulletVec);
 }
@@ -191,6 +205,7 @@ void Game::updateGame() {
   playerTank.update(timingData.deltaTime);
   for (auto& tnk : enemyTanks) {
     tnk.update(timingData.deltaTime);
+    updateTankAI(tnk);
   }
   for (int i = 0; i < bulletVec.size(); i++) {
     Bullet& b = bulletVec.at(i);

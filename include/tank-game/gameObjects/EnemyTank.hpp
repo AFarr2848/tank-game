@@ -2,7 +2,7 @@
 #include "tank-game/gameObjects/Tank.hpp"
 namespace Tnk {
 struct TankAI {
-  std::vector<glm::ivec2> path;
+  glm::vec2 moveTarget = glm::vec2(-1);
   float thinkTimer = 0;
   float desireAngle;
   int maxRicochets;
