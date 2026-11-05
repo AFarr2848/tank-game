@@ -11,12 +11,19 @@ class Maze {
     bool wallNorth = true, wallSouth = true, wallEast = true, wallWest = true;
     bool visited = false;
   };
+  struct RayBounceResult {
+    glm::vec2 pos;
+    float angle;
+  };
+
   int mazeSize;
   std::vector<std::vector<MazeCell>> cells;
 
   void makeMaze(int mazeSize);
   std::vector<glm::vec2> makeLines();
   std::vector<glm::ivec2> getConnectedCells(glm::ivec2 cellCoords);
+
+  RayBounceResult calculateRayBounce(glm::vec2 startPos, float angle);
 
  private:
   std::random_device rd;

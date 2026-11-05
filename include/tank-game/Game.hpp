@@ -11,6 +11,7 @@ class Game {
  public:
   Game(InputHelper& inputHelper, TimingData& timingData)
       : inputHelper(inputHelper), timingData(timingData) {};
+
   void startGame();
   void getMazeLines();
   std::vector<glm::vec2> mazeLines;
@@ -25,6 +26,12 @@ class Game {
   std::array<PointLight, MAX_LIGHTS> getLights();
 
  private:
+  struct ShotRay {
+    glm::vec2 pos;
+    float angle;
+    int colNum;
+  };
+
   InputHelper& inputHelper;
   TimingData& timingData;
   int maxTankValue = 1;
@@ -39,6 +46,8 @@ class Game {
   glm::ivec2 getTankMazeCoords(Tank& tank);
   glm::vec2 mazeToNdcCoords(glm::ivec2 mazeCoords);
   std::vector<glm::vec2> findMazePath(glm::ivec2 start, glm::ivec2 end);
+  Game::ShotRay calculateRayBounce(ShotRay ray);
+  void checkAvailableShots();
 
   void getInputs();
 

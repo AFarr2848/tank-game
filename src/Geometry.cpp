@@ -15,6 +15,52 @@ glm::mat3 Rect::getTransformation() const {
   return T * R * S;
 }
 
+bool Rect::intersectRay(glm::vec2 rayStart, glm::vec2 rayEnd) const {
+  glm::mat3 invTransform = glm::inverse(getTransformation());
+
+  glm::vec2 localStart = glm::vec2(invTransform * glm::vec3(rayStart, 1.0f));
+  glm::vec2 localEnd = glm::vec2(invTransform * glm::vec3(rayEnd, 1.0f));
+
+  glm::vec2 boxMin(-1.0f);
+  glm::vec2 boxMax(1.0f);
+  glm::vec2 dir = localEnd - localStart;
+
+  float tmin = 0.0f;
+  float tmax = 1.0f;
+
+  if (std::abs(dir.x) < 1e-6f) {
+    if (localStart.x < boxMin.x || localStart.x > boxMax.x)
+      return false;
+  } else {
+    float ood = 1.0f / dir.x;
+    float t1 = (boxMin.x - localStart.x) * ood;
+    float t2 = (boxMax.x - localStart.x) * ood;
+    if (t1 > t2)
+      std::swap(t1, t2);
+    tmin = std::max(tmin, t1);
+    tmax = std::min(tmax, t2);
+    if (tmin > tmax)
+      return false;
+  }
+
+  if (std::abs(dir.y) < 1e-6f) {
+    if (localStart.y < boxMin.y || localStart.y > boxMax.y)
+      return false;
+  } else {
+    float ood = 1.0f / dir.y;
+    float t1 = (boxMin.y - localStart.y) * ood;
+    float t2 = (boxMax.y - localStart.y) * ood;
+    if (t1 > t2)
+      std::swap(t1, t2);
+    tmin = std::max(tmin, t1);
+    tmax = std::min(tmax, t2);
+    if (tmin > tmax)
+      return false;
+  }
+
+  return true;
+}
+
 std::vector<CollisionDirection> Rect::collideMaze(Maze& maze) {
   std::vector<CollisionDirection> collisions;
   glm::vec2 center = normalizedCenter();

@@ -8,6 +8,9 @@ class PlayerTank : public Tank {
  public:
   PlayerTank(PlayerCreateInfo info) : Tank(info) {}
   PlayerTank() : Tank() {}
+
+  double mathTimer = 0;
+
   void update(float deltaTime) override;
 
   void checkTurnCollision(float turnTry);

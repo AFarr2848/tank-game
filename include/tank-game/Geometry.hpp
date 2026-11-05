@@ -39,6 +39,8 @@ struct Rect {
     return floats;
   }
 
+  bool intersectRay(glm::vec2 rayStart, glm::vec2 rayEnd) const;
+
   glm::mat3 getTransformation() const;
 
   bool contains(glm::vec2 point) const {

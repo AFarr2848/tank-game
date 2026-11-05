@@ -13,12 +13,14 @@ void EnemyTank::update(float deltaTime) {
 
   tankAI.desireAngle = (2 * PI) - atan2(targetDist.y, -targetDist.x);
 
+  /*
   std::cout << "Current target: " << glm::to_string(tankAI.moveTarget)
             << std::endl;
   std::cout << "Target distance: " << glm::to_string(targetDist) << std::endl;
   std::cout << "Angle difference: " << tankAI.desireAngle - bounds.rotation
             << std::endl;
   std::cout << "Current Angle: " << bounds.rotation << std::endl;
+  */
 
   float angleDiff = atan2(std::sin(tankAI.desireAngle - bounds.rotation),
                           std::cos(tankAI.desireAngle - bounds.rotation));

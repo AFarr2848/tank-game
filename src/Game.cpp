@@ -113,6 +113,126 @@ void Game::updateTankAI(EnemyTank& tank) {
   }
 }
 
+// tbd
+void Game::checkAvailableShots() {
+  for (int i = 0; i < 64; i++) {
+    bool foundCol = false;
+    ShotRay ray = {playerTank.bounds.center,
+                   static_cast<float>(std::numbers::pi * 2 * (i / 64.0)), 0
+
+    };
+    while (!foundCol && ray.colNum < 1) {
+      ShotRay nextRay = calculateRayBounce(ray);
+      for (auto& t : enemyTanks) {
+        if (t.bounds.intersectRay(ray.pos, nextRay.pos)) {
+          // tank collides with ray
+          foundCol = true;
+          std::cout << "Shot found!" << std::endl;
+        }
+      }
+      ray = nextRay;
+    }
+  }
+}
+
+Game::ShotRay Game::calculateRayBounce(ShotRay ray) {
+  // 1. Convert NDC input position to internal maze grid coordinates [0,
+  // mazeSize]
+  float gridX = (ray.pos.x + 1.0f) * 0.5f * mazeSize;
+  float gridY = (ray.pos.y + 1.0f) * 0.5f * mazeSize;
+
+  glm::vec2 dir = {std::cos(ray.angle), std::sin(ray.angle)};
+
+  int mapX = static_cast<int>(std::floor(gridX));
+  int mapY = static_cast<int>(std::floor(gridY));
+
+  // Clamp to valid grid indices to prevent out-of-bounds index faults
+  mapX = std::clamp(mapX, 0, mazeSize - 1);
+  mapY = std::clamp(mapY, 0, mazeSize - 1);
+
+  // 2. DDA Step setup
+  glm::vec2 deltaDist = {(dir.x == 0) ? 1e30f : std::abs(1.0f / dir.x),
+                         (dir.y == 0) ? 1e30f : std::abs(1.0f / dir.y)};
+
+  int stepX = (dir.x < 0) ? -1 : 1;
+  int stepY = (dir.y < 0) ? -1 : 1;
+
+  glm::vec2 sideDist;
+  sideDist.x = (dir.x < 0) ? (gridX - mapX) * deltaDist.x
+                           : (mapX + 1.0f - gridX) * deltaDist.x;
+  sideDist.y = (dir.y < 0) ? (gridY - mapY) * deltaDist.y
+                           : (mapY + 1.0f - gridY) * deltaDist.y;
+
+  bool hitWall = false;
+  int hitSide = 0;  // 0 = X-axis wall, 1 = Y-axis wall
+  glm::vec2 normal = {0.0f, 0.0f};
+
+  // 3. Step through grid cells until an inner wall or outer boundary is hit
+  while (!hitWall) {
+    if (sideDist.x < sideDist.y) {
+      sideDist.x += deltaDist.x;
+      mapX += stepX;
+      hitSide = 0;
+    } else {
+      sideDist.y += deltaDist.y;
+      mapY += stepY;
+      hitSide = 1;
+    }
+
+    // Check outer maze boundaries (treat outer edges as solid walls)
+    if (mapX < 0 || mapX >= mazeSize || mapY < 0 || mapY >= mazeSize) {
+      hitWall = true;
+      if (hitSide == 0) {
+        normal = {(stepX > 0) ? -1.0f : 1.0f, 0.0f};
+        mapX = std::clamp(mapX, 0, mazeSize - 1);
+      } else {
+        normal = {0.0f, (stepY > 0) ? -1.0f : 1.0f};
+        mapY = std::clamp(mapY, 0, mazeSize - 1);
+      }
+      break;
+    }
+
+    // Check internal maze walls
+    const auto& cell = maze.cells[mapY][mapX];
+    if (hitSide == 0) {
+      if (stepX > 0 && cell.wallEast) {
+        hitWall = true;
+        normal = {-1.0f, 0.0f};
+      } else if (stepX < 0 && cell.wallWest) {
+        hitWall = true;
+        normal = {1.0f, 0.0f};
+      }
+    } else {
+      if (stepY > 0 && cell.wallSouth) {
+        hitWall = true;
+        normal = {0.0f, -1.0f};
+      } else if (stepY < 0 && cell.wallNorth) {
+        hitWall = true;
+        normal = {0.0f, 1.0f};
+      }
+    }
+  }
+
+  // 4. Calculate exact hit coordinate in grid space
+  float perpWallDist =
+      (hitSide == 0) ? (sideDist.x - deltaDist.x) : (sideDist.y - deltaDist.y);
+  glm::vec2 hitGridPos = glm::vec2(gridX, gridY) + dir * perpWallDist;
+
+  // Nudge slightly away from the wall to prevent self-intersection bugs
+  glm::vec2 offsetGridPos = hitGridPos + (normal * 0.001f);
+
+  // 5. Calculate reflection angle: R = D - 2(D · N)N
+  glm::vec2 reflectDir = dir - 2.0f * glm::dot(dir, normal) * normal;
+  float newAngle = std::atan2(reflectDir.y, reflectDir.x);
+
+  // 6. Convert grid space hit position back into NDC space [-1, 1]
+  float ndcX = (offsetGridPos.x / mazeSize) * 2.0f - 1.0f;
+  float ndcY = (offsetGridPos.y / mazeSize) * 2.0f - 1.0f;
+
+  return ShotRay{
+      .pos = {ndcX, ndcY}, .angle = newAngle, .colNum = ray.colNum + 1};
+}
+
 std::vector<glm::vec2> Game::findMazePath(glm::ivec2 start, glm::ivec2 end) {
   struct Node {
     glm::ivec2 coord;
@@ -203,6 +323,10 @@ void Game::getInputs() {
 
 void Game::updateGame() {
   playerTank.update(timingData.deltaTime);
+  if (playerTank.mathTimer > AI_THINK_INTERVAL) {
+    playerTank.mathTimer = 0;
+    checkAvailableShots();
+  }
   for (auto& tnk : enemyTanks) {
     tnk.update(timingData.deltaTime);
     updateTankAI(tnk);
