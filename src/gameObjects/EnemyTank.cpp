@@ -8,7 +8,26 @@ void EnemyTank::updateAI() {}
 void EnemyTank::update(float deltaTime) {
   sprite.bounds = bounds;
   tankAI.thinkTimer += deltaTime;
+  if (tankAI.hasShot) {
+    aimAtTarget(deltaTime);
+    if (abs(getAngleDifference()) < PI / 8)
+      requestShoot = true;
 
+  } else
+    moveToTarget(deltaTime);
+}
+
+void EnemyTank::aimAtTarget(float deltaTime) {
+  std::cout << "Aiming!" << std::endl;
+  float angleDiff = atan2(std::sin(tankAI.shotAngle - bounds.rotation),
+                          std::cos(tankAI.shotAngle - bounds.rotation));
+
+  float turnDirection = (angleDiff < 0.0f) ? -1.0f : 1.0f;
+
+  turnTank(turnDirection * turnSpeed * deltaTime);
+}
+
+void EnemyTank::moveToTarget(float deltaTime) {
   glm::vec2 targetDist = bounds.center - tankAI.moveTarget;
 
   tankAI.desireAngle = (2 * PI) - atan2(targetDist.y, -targetDist.x);
@@ -22,8 +41,7 @@ void EnemyTank::update(float deltaTime) {
   std::cout << "Current Angle: " << bounds.rotation << std::endl;
   */
 
-  float angleDiff = atan2(std::sin(tankAI.desireAngle - bounds.rotation),
-                          std::cos(tankAI.desireAngle - bounds.rotation));
+  float angleDiff = getAngleDifference();
 
   float absDiff = abs(angleDiff);
   float turnDirection = (angleDiff < 0.0f) ? -1.0f : 1.0f;
@@ -34,4 +52,9 @@ void EnemyTank::update(float deltaTime) {
     moveTank(sprite.bounds.getFront() * (moveSpeed * deltaTime));
     turnTank(turnDirection * turnSpeed * deltaTime);
   }
+}
+
+float EnemyTank::getAngleDifference() {
+  return atan2(std::sin(tankAI.desireAngle - bounds.rotation),
+               std::cos(tankAI.desireAngle - bounds.rotation));
 }

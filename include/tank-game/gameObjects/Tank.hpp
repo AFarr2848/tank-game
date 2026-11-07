@@ -16,6 +16,8 @@ struct TankCreateInfo {
   glm::vec3 lightColor = {10.0f, 10.0f, 10.0f};
   float moveSpeed = 0.4;
   float turnSpeed = 2;
+  float bulletSpeed = 0.6;
+  float maxBullets = 2;
 };
 
 class Tank {
@@ -77,7 +79,8 @@ class Tank {
       if (bullet.owner == this)
         bulletsOwned++;
     }
-    if (bulletsOwned < 2) {
+    if (bulletsOwned < maxBullets) {
+      requestShoot = false;
       Bullet bullet(
           Rect{
 
@@ -88,21 +91,23 @@ class Tank {
 
           },
           *this);
-      bullet.vel = bounds.getFront() * glm::vec2(0.6);
+      bullet.vel = bounds.getFront() * glm::vec2(bulletSpeed);
       bulletVec.push_back(bullet);
     }
   }
 
   virtual ~Tank() {}
+  virtual void update(float deltaTime) = 0;
 
   Rect bounds;
   Sprite sprite;
   PointLight light;
 
-  virtual void update(float deltaTime) = 0;
-
+  float bulletSpeed;
+  int maxBullets;
   float moveSpeed;
   float turnSpeed;
+  bool requestShoot = false;
 };
 
 }  // namespace Tnk

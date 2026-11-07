@@ -4,6 +4,8 @@ namespace Tnk {
 struct TankAI {
   glm::vec2 moveTarget = glm::vec2(-1);
   float thinkTimer = 0;
+  float shotAngle = 0;
+  bool hasShot = false;
   float desireAngle;
   int maxRicochets;
 };
@@ -25,6 +27,10 @@ class EnemyTank : public Tank {
   void updateAI();
   void updateMovement();
   void update(float deltaTime) override;
+  float getAngleDifference();
+
+  void aimAtTarget(float deltaTime);
+  void moveToTarget(float deltaTime);
 };
 
 }  // namespace Tnk

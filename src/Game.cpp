@@ -113,21 +113,30 @@ void Game::updateTankAI(EnemyTank& tank) {
   }
 }
 
-// tbd
 void Game::checkAvailableShots() {
-  for (int i = 0; i < 64; i++) {
+  for (auto& t : enemyTanks)
+    t.tankAI.hasShot = false;
+
+  const int NUM_RAYS = 360;
+  for (int i = 0; i < NUM_RAYS; i++) {
     bool foundCol = false;
-    ShotRay ray = {playerTank.bounds.center,
-                   static_cast<float>(std::numbers::pi * 2 * (i / 64.0)), 0
+    ShotRay ray = {
+        playerTank.bounds.center,
+        static_cast<float>(std::numbers::pi * 2 * (i / float(NUM_RAYS))), 0
 
     };
-    while (!foundCol && ray.colNum < 1) {
+
+    while (!foundCol && ray.colNum < 2) {
       ShotRay nextRay = calculateRayBounce(ray);
       for (auto& t : enemyTanks) {
         if (t.bounds.intersectRay(ray.pos, nextRay.pos)) {
-          // tank collides with ray
+          t.tankAI.hasShot = true;
+          t.tankAI.shotAngle = ray.angle >= std::numbers::pi
+                                   ? ray.angle - std::numbers::pi
+                                   : ray.angle + std::numbers::pi;
           foundCol = true;
           std::cout << "Shot found!" << std::endl;
+          break;
         }
       }
       ray = nextRay;
@@ -167,56 +176,32 @@ Game::ShotRay Game::calculateRayBounce(ShotRay ray) {
   int hitSide = 0;  // 0 = X-axis wall, 1 = Y-axis wall
   glm::vec2 normal = {0.0f, 0.0f};
 
-  // 3. Step through grid cells until an inner wall or outer boundary is hit
+  float t = 0.0f;
   while (!hitWall) {
+    const auto& cell = maze.cells[mapY][mapX];  // cell we're leaving
+
     if (sideDist.x < sideDist.y) {
+      if (stepX > 0 ? cell.wallEast : cell.wallWest) {
+        hitWall = true;
+        t = sideDist.x;
+        normal = {-float(stepX), 0.0f};
+        break;
+      }
       sideDist.x += deltaDist.x;
       mapX += stepX;
-      hitSide = 0;
     } else {
+      if (stepY > 0 ? cell.wallSouth : cell.wallNorth) {
+        hitWall = true;
+        t = sideDist.y;
+        normal = {0.0f, -float(stepY)};
+        break;
+      }
       sideDist.y += deltaDist.y;
       mapY += stepY;
-      hitSide = 1;
-    }
-
-    // Check outer maze boundaries (treat outer edges as solid walls)
-    if (mapX < 0 || mapX >= mazeSize || mapY < 0 || mapY >= mazeSize) {
-      hitWall = true;
-      if (hitSide == 0) {
-        normal = {(stepX > 0) ? -1.0f : 1.0f, 0.0f};
-        mapX = std::clamp(mapX, 0, mazeSize - 1);
-      } else {
-        normal = {0.0f, (stepY > 0) ? -1.0f : 1.0f};
-        mapY = std::clamp(mapY, 0, mazeSize - 1);
-      }
-      break;
-    }
-
-    // Check internal maze walls
-    const auto& cell = maze.cells[mapY][mapX];
-    if (hitSide == 0) {
-      if (stepX > 0 && cell.wallEast) {
-        hitWall = true;
-        normal = {-1.0f, 0.0f};
-      } else if (stepX < 0 && cell.wallWest) {
-        hitWall = true;
-        normal = {1.0f, 0.0f};
-      }
-    } else {
-      if (stepY > 0 && cell.wallSouth) {
-        hitWall = true;
-        normal = {0.0f, -1.0f};
-      } else if (stepY < 0 && cell.wallNorth) {
-        hitWall = true;
-        normal = {0.0f, 1.0f};
-      }
     }
   }
 
-  // 4. Calculate exact hit coordinate in grid space
-  float perpWallDist =
-      (hitSide == 0) ? (sideDist.x - deltaDist.x) : (sideDist.y - deltaDist.y);
-  glm::vec2 hitGridPos = glm::vec2(gridX, gridY) + dir * perpWallDist;
+  glm::vec2 hitGridPos = glm::vec2(gridX, gridY) + dir * t;
 
   // Nudge slightly away from the wall to prevent self-intersection bugs
   glm::vec2 offsetGridPos = hitGridPos + (normal * 0.001f);
@@ -329,6 +314,8 @@ void Game::updateGame() {
   }
   for (auto& tnk : enemyTanks) {
     tnk.update(timingData.deltaTime);
+    if (tnk.requestShoot)
+      tnk.shoot(bulletVec);
     updateTankAI(tnk);
   }
   for (int i = 0; i < bulletVec.size(); i++) {
@@ -346,7 +333,7 @@ void Game::updateGame() {
 void Game::collideBullets() {
   for (auto& b : bulletVec) {
     for (auto& t : enemyTanks) {
-      if (t.bounds.contains(b.bounds.center)) {
+      if (b.owner != &t && t.bounds.contains(b.bounds.center)) {
         std::erase(enemyTanks, t);
       }
     }
