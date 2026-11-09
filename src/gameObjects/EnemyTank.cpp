@@ -1,6 +1,5 @@
 #include "tank-game/gameObjects/EnemyTank.hpp"
 #include <glm/gtx/string_cast.hpp>
-#include <iostream>
 #include <numbers>
 using namespace Tnk;
 const double PI = std::numbers::pi;
@@ -8,17 +7,26 @@ void EnemyTank::updateAI() {}
 void EnemyTank::update(float deltaTime) {
   sprite.bounds = bounds;
   tankAI.thinkTimer += deltaTime;
+  timeSinceFired += deltaTime;
   if (tankAI.hasShot) {
     aimAtTarget(deltaTime);
-    if (abs(getAngleDifference()) < PI / 8)
+    std::cout << (getAngleDifference(tankAI.shotAngle) / PI) << std::endl;
+    if (canShoot()) {
       requestShoot = true;
+      tankAI.hasShot = false;
+    }
 
   } else
     moveToTarget(deltaTime);
 }
 
+bool EnemyTank::canShoot() {
+  return (tankAI.hasShot && timeSinceFired >= fireCooldown &&
+          currentBullets < maxBullets &&
+          abs(getAngleDifference(tankAI.shotAngle)) < tankAI.shotTolerance);
+}
+
 void EnemyTank::aimAtTarget(float deltaTime) {
-  std::cout << "Aiming!" << std::endl;
   float angleDiff = atan2(std::sin(tankAI.shotAngle - bounds.rotation),
                           std::cos(tankAI.shotAngle - bounds.rotation));
 
@@ -41,7 +49,7 @@ void EnemyTank::moveToTarget(float deltaTime) {
   std::cout << "Current Angle: " << bounds.rotation << std::endl;
   */
 
-  float angleDiff = getAngleDifference();
+  float angleDiff = getAngleDifference(tankAI.desireAngle);
 
   float absDiff = abs(angleDiff);
   float turnDirection = (angleDiff < 0.0f) ? -1.0f : 1.0f;
@@ -54,7 +62,7 @@ void EnemyTank::moveToTarget(float deltaTime) {
   }
 }
 
-float EnemyTank::getAngleDifference() {
-  return atan2(std::sin(tankAI.desireAngle - bounds.rotation),
-               std::cos(tankAI.desireAngle - bounds.rotation));
+float EnemyTank::getAngleDifference(float otherAngle) {
+  return atan2(std::sin(otherAngle - bounds.rotation),
+               std::cos(otherAngle - bounds.rotation));
 }

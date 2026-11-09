@@ -37,6 +37,7 @@ class Game {
   int maxTankValue = 1;
   void spawnTank(EnemyTank tank);
   void trySpawnTank();
+  Tank* getTankByID(uint32_t id);
 
   void collideBullets();
   void updateTankAI(EnemyTank& tank);

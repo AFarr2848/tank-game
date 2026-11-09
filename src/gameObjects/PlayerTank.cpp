@@ -5,6 +5,7 @@ using namespace Tnk;
 void PlayerTank::update(float deltaTime) {
   sprite.bounds = bounds;
   mathTimer += deltaTime;
+  timeSinceFired += deltaTime;
 }
 
 glm::vec2 PlayerTank::checkMoveCollision(float move, Maze& maze) {

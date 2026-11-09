@@ -22,8 +22,8 @@ void Game::startGame() {
       .center = {-0.9, -0.9}, .size = {0.11, 0.075}, .rotation = 0};
   playerInfo.texture = "playerTank";
   playerInfo.lightColor = glm::vec3(10.0f);
-  playerInfo.moveSpeed = 0.15;
-  playerInfo.turnSpeed = 0.07;
+  playerInfo.moveSpeed = 0.4;
+  playerInfo.turnSpeed = 2;
 
   playerTank = PlayerTank(playerInfo);
   playerTank.light.location = playerTank.bounds.center;
@@ -135,7 +135,6 @@ void Game::checkAvailableShots() {
                                    ? ray.angle - std::numbers::pi
                                    : ray.angle + std::numbers::pi;
           foundCol = true;
-          std::cout << "Shot found!" << std::endl;
           break;
         }
       }
@@ -314,30 +313,45 @@ void Game::updateGame() {
   }
   for (auto& tnk : enemyTanks) {
     tnk.update(timingData.deltaTime);
-    if (tnk.requestShoot)
+    if (tnk.requestShoot) {
       tnk.shoot(bulletVec);
+    }
+
     updateTankAI(tnk);
   }
   for (int i = 0; i < bulletVec.size(); i++) {
     Bullet& b = bulletVec.at(i);
     b.moveBullet(timingData.deltaTime, maze);
     if (b.bounces > b.maxBounces) {
-      bulletVec.erase(bulletVec.begin() + i);
+      Tank* t = getTankByID(b.ownerID);
+      if (t != nullptr)
+        t->currentBullets--;
     }
   }
-  collideBullets();
+  std::erase_if(bulletVec, [](auto& b) { return b.bounces > b.maxBounces; });
+
   trySpawnTank();
+  collideBullets();
   getInputs();
 }
 
 void Game::collideBullets() {
   for (auto& b : bulletVec) {
-    for (auto& t : enemyTanks) {
-      if (b.owner != &t && t.bounds.contains(b.bounds.center)) {
-        std::erase(enemyTanks, t);
-      }
-    }
+    std::erase_if(enemyTanks, [b](auto& t) {
+      return b.ownerID != t.id && t.bounds.contains(b.bounds.center);
+    });
   }
+}
+
+// yeah yeah ik this sucks
+Tank* Game::getTankByID(uint32_t id) {
+  if (id == playerTank.id)
+    return &playerTank;
+  for (auto& t : enemyTanks) {
+    if (id == t.id)
+      return &t;
+  }
+  return nullptr;
 }
 
 std::vector<Sprite> Game::getSprites() {

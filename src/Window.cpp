@@ -23,8 +23,7 @@ EM_BOOL Window::OnCanvasResize(int eventType,
   glfwSetWindowSize(window->window, fbWidth, fbHeight);
 
   glViewport(0, 0, fbWidth, fbHeight);
-  window->width = fbWidth;
-  window->height = fbHeight;
+  window->realSize = {fbWidth, fbHeight};
   window->resized = true;
 
   return EM_TRUE;

@@ -8,10 +8,12 @@ struct TankAI {
   bool hasShot = false;
   float desireAngle;
   int maxRicochets;
+  float shotTolerance;
 };
 struct EnemyTankCreateInfo : public TankCreateInfo {
   int tankValue = 1;
   int maxRicochets = 1;
+  float shotTolerance = std::numbers::pi / 32;
 };
 
 class EnemyTank : public Tank {
@@ -19,16 +21,17 @@ class EnemyTank : public Tank {
   EnemyTank(EnemyTankCreateInfo info) : Tank(info) {
     tankAI.maxRicochets = info.maxRicochets;
     tankValue = info.tankValue;
+    tankAI.shotTolerance = info.shotTolerance;
   };
 
   int tankValue;
   TankAI tankAI;
 
   void updateAI();
+  bool canShoot();
   void updateMovement();
   void update(float deltaTime) override;
-  float getAngleDifference();
-
+  float getAngleDifference(float otherAngle);
   void aimAtTarget(float deltaTime);
   void moveToTarget(float deltaTime);
 };

@@ -2,6 +2,7 @@
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 #include "GLFW/glfw3.h"
+#include "glm/ext/vector_int2.hpp"
 
 namespace Tnk {
 class InputHelper;
@@ -12,8 +13,8 @@ class Window {
   GLFWwindow* window = nullptr;
   void init();
   void InitResizeHandling();
-  int width;
-  int height;
+  glm::ivec2 renderSize;
+  glm::ivec2 realSize;
   bool resized = false;
 
  private:

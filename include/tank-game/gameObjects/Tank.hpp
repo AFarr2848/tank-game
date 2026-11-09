@@ -18,20 +18,25 @@ struct TankCreateInfo {
   float turnSpeed = 2;
   float bulletSpeed = 0.6;
   float maxBullets = 2;
+  float fireCooldown = 0.1;
 };
 
 class Tank {
  public:
-  Tank(TankCreateInfo info) : bounds(info.bounds), sprite(this->bounds) {
+  Tank(TankCreateInfo info)
+      : id(nextID++), bounds(info.bounds), sprite(this->bounds) {
     light = PointLight{.location = this->bounds.center,
                        .radius = 0.02,
                        .color = info.lightColor};
     moveSpeed = info.moveSpeed;
     turnSpeed = info.turnSpeed;
     sprite.texture = info.texture;
+    bulletSpeed = info.bulletSpeed;
+    maxBullets = info.maxBullets;
+    fireCooldown = info.fireCooldown;
   }
 
-  Tank() : bounds(), sprite(this->bounds) {
+  Tank() : id(nextID++), bounds(), sprite(this->bounds) {
     TankCreateInfo info = TankCreateInfo();
     light = PointLight{.location = this->bounds.center,
                        .radius = 0.02,
@@ -39,15 +44,23 @@ class Tank {
     moveSpeed = info.moveSpeed;
     turnSpeed = info.turnSpeed;
     sprite.texture = info.texture;
+    bulletSpeed = info.bulletSpeed;
+    maxBullets = info.maxBullets;
+    fireCooldown = info.fireCooldown;
   }
 
-  Tank(const Tank& other) : bounds(other.bounds), sprite(this->bounds) {
-    sprite.texture = other.sprite.texture;
+  Tank(const Tank& other)
+      : id(other.id), bounds(other.bounds), sprite(this->bounds) {
     light = PointLight{.location = bounds.center,
                        .radius = 0.02,
                        .color = glm::vec3(3.0f, 3.0f, 3.0f)};
     moveSpeed = other.moveSpeed;
     turnSpeed = other.turnSpeed;
+    sprite.texture = other.sprite.texture;
+    bulletSpeed = other.bulletSpeed;
+    maxBullets = other.maxBullets;
+    fireCooldown = other.fireCooldown;
+    timeSinceFired = other.timeSinceFired;
   }
 
   Tank& operator=(const Tank& other) {
@@ -55,6 +68,13 @@ class Tank {
       bounds = other.bounds;
       sprite = other.sprite;
       sprite.bounds = this->bounds;
+      id = other.id;
+      moveSpeed = other.moveSpeed;
+      turnSpeed = other.turnSpeed;
+      bulletSpeed = other.bulletSpeed;
+      maxBullets = other.maxBullets;
+      fireCooldown = other.fireCooldown;
+      timeSinceFired = other.timeSinceFired;
     }
     return *this;
   }
@@ -74,26 +94,21 @@ class Tank {
   }
 
   void shoot(std::vector<Bullet>& bulletVec) {
-    int bulletsOwned = 0;
-    for (Bullet& bullet : bulletVec) {
-      if (bullet.owner == this)
-        bulletsOwned++;
-    }
-    if (bulletsOwned < maxBullets) {
-      requestShoot = false;
-      Bullet bullet(
-          Rect{
+    requestShoot = false;
+    timeSinceFired = 0;
+    currentBullets++;
+    Bullet bullet(
+        Rect{
 
-              .center = bounds.center +
-                        (bounds.getFront() * bounds.size.y / glm::vec2(2)),
-              .size = glm::vec2(0.03),
-              .rotation = 0
+            .center = bounds.center +
+                      (bounds.getFront() * bounds.size.y / glm::vec2(2)),
+            .size = glm::vec2(0.03),
+            .rotation = 0
 
-          },
-          *this);
-      bullet.vel = bounds.getFront() * glm::vec2(bulletSpeed);
-      bulletVec.push_back(bullet);
-    }
+        },
+        this->id);
+    bullet.vel = bounds.getFront() * bulletSpeed;
+    bulletVec.push_back(bullet);
   }
 
   virtual ~Tank() {}
@@ -103,11 +118,19 @@ class Tank {
   Sprite sprite;
   PointLight light;
 
+  uint32_t id;
+
   float bulletSpeed;
   int maxBullets;
+  int currentBullets = 0;
   float moveSpeed;
   float turnSpeed;
   bool requestShoot = false;
+  float fireCooldown;
+  float timeSinceFired = 0;
+
+ private:
+  static inline uint32_t nextID = 1;
 };
 
 }  // namespace Tnk

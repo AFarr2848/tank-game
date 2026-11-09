@@ -4,19 +4,19 @@
 #include "tank-game/Lighting.hpp"
 #include "tank-game/gameObjects/Sprite.hpp"
 namespace Tnk {
-class Tank;
 
 class Bullet {
  public:
-  Bullet(Rect bounds, Tank& owner)
-      : bounds(bounds), sprite(this->bounds), owner(&owner) {
+  Bullet(Rect bounds, uint32_t ownerID) : bounds(bounds), sprite(this->bounds) {
     sprite.texture = "bullet";
     light = PointLight{.location = bounds.center,
                        .radius = 0.01,
                        .color = glm::vec3(0.5f, 0.0f, 0.2f) * glm::vec3(25.0)};
+    this->ownerID = ownerID;
   }
-  Bullet(Tank& owner) : bounds(), sprite(this->bounds), owner(&owner) {
+  Bullet(uint32_t ownerID) : bounds(), sprite(this->bounds) {
     sprite.texture = "bullet";
+    this->ownerID = ownerID;
   }
 
   Bullet& operator=(const Bullet& other) {
@@ -24,7 +24,7 @@ class Bullet {
       vel = other.vel;
       bounds = other.bounds;
       sprite = other.sprite;
-      owner = other.owner;
+      ownerID = other.ownerID;
       bounces = other.bounces;
       maxBounces = other.maxBounces;
     }
@@ -34,7 +34,7 @@ class Bullet {
   glm::vec2 vel;
   Rect bounds;
   Sprite sprite;
-  Tank* owner;
+  uint32_t ownerID;
   PointLight light;
   int bounces = 0;
   int maxBounces = 2;
