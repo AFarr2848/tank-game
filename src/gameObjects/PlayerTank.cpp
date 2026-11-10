@@ -1,6 +1,15 @@
-
 #include "tank-game/gameObjects/PlayerTank.hpp"
+#include <GLFW/glfw3.h>
+#include "tank-game/InputHelper.hpp"
 using namespace Tnk;
+
+void PlayerTank::updatePlayer(float deltaTime,
+                              InputHelper& inputHelper,
+                              Maze& maze,
+                              std::vector<Bullet>& bulletVec) {
+  update(deltaTime);
+  updateInputs(deltaTime, inputHelper, maze, bulletVec);
+}
 
 void PlayerTank::update(float deltaTime) {
   sprite.bounds = bounds;
@@ -26,4 +35,24 @@ glm::vec2 PlayerTank::checkMoveCollision(float move, Maze& maze) {
       moveVec.x = 0;
   }
   return moveVec;
+}
+
+void PlayerTank::updateInputs(float deltaTime,
+                              InputHelper& inputHelper,
+                              Maze& maze,
+                              std::vector<Bullet>& bulletVec) {
+  auto isKeyDown = [this, &inputHelper](int key) {
+    return inputHelper.isKeyDown(key);
+  };
+
+  if (isKeyDown(GLFW_KEY_W))
+    moveTank(checkMoveCollision(deltaTime * moveSpeed, maze));
+  if (isKeyDown(GLFW_KEY_S))
+    moveTank(checkMoveCollision(-deltaTime * moveSpeed, maze));
+  if (isKeyDown(GLFW_KEY_A))
+    turnTank(deltaTime * turnSpeed);
+  if (isKeyDown(GLFW_KEY_D))
+    turnTank(-deltaTime * turnSpeed);
+  if (inputHelper.isKeyDownToggle(GLFW_KEY_SPACE))
+    shoot(bulletVec);
 }

@@ -105,6 +105,22 @@ std::vector<glm::ivec2> Maze::getConnectedCells(glm::ivec2 cellCoords) {
   return dirs;
 }
 
+glm::ivec2 Maze::NDCtoMazeCoords(glm::vec2 pos) {
+  float norm_x = (pos.x + 1.0f) * 0.5f;
+  float norm_y = (pos.y + 1.0f) * 0.5f;  // was (1 - y)
+  int col = std::clamp(static_cast<int>(norm_x * mazeSize), 0, mazeSize - 1);
+  int row = std::clamp(static_cast<int>(norm_y * mazeSize), 0, mazeSize - 1);
+  return {row, col};
+}
+
+glm::vec2 Maze::mazeToNdcCoords(glm::ivec2 mazeCoords) {
+  int row = mazeCoords.x;
+  int col = mazeCoords.y;
+  float x = ((col + 0.5f) / mazeSize) * 2.0f - 1.0f;
+  float y = ((row + 0.5f) / mazeSize) * 2.0f - 1.0f;  // was 1 - 2*norm_y
+  return {x, y};
+}
+
 void Maze::makeMaze(int mazeSize) {
   using namespace std;
   this->mazeSize = mazeSize;

@@ -1,7 +1,8 @@
 #pragma once
 #include <random>
 #include <vector>
-#include "glm/glm.hpp"
+#include "glm/ext/vector_float2.hpp"
+#include "glm/ext/vector_int2.hpp"
 
 namespace Tnk {
 
@@ -22,7 +23,8 @@ class Maze {
   void makeMaze(int mazeSize);
   std::vector<glm::vec2> makeLines();
   std::vector<glm::ivec2> getConnectedCells(glm::ivec2 cellCoords);
-
+  glm::vec2 mazeToNdcCoords(glm::ivec2 mazeCoords);
+  glm::ivec2 NDCtoMazeCoords(glm::vec2 pos);
   RayBounceResult calculateRayBounce(glm::vec2 startPos, float angle);
 
  private:

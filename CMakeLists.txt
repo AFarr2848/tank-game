@@ -21,6 +21,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/ShaderManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/BufferManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/TextureManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/EnemyManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Bullet.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/EnemyTank.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/PlayerTank.cpp
