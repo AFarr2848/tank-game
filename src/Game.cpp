@@ -12,6 +12,7 @@ using namespace Tnk;
 void Game::startGame() {
   maze.makeMaze(6);
   getMazeLines();
+  enemyManager.initEnemyTypes();
   PlayerCreateInfo playerInfo;
   playerInfo.bounds = {
       .center = {-0.9, -0.9}, .size = {0.11, 0.075}, .rotation = 0};

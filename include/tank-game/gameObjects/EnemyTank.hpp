@@ -7,7 +7,6 @@ struct TankAI {
   float shotAngle = 0;
   bool hasShot = false;
   float desireAngle;
-  int maxRicochets;
   float shotTolerance;
 };
 struct EnemyTankCreateInfo : public TankCreateInfo {
@@ -19,7 +18,7 @@ struct EnemyTankCreateInfo : public TankCreateInfo {
 class EnemyTank : public Tank {
  public:
   EnemyTank(EnemyTankCreateInfo info) : Tank(info) {
-    tankAI.maxRicochets = info.maxRicochets;
+    maxRicochets = info.maxRicochets;
     tankValue = info.tankValue;
     tankAI.shotTolerance = info.shotTolerance;
   };

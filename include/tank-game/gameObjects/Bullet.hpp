@@ -7,12 +7,14 @@ namespace Tnk {
 
 class Bullet {
  public:
-  Bullet(Rect bounds, uint32_t ownerID) : bounds(bounds), sprite(this->bounds) {
+  Bullet(Rect bounds, uint32_t ownerID, int maxBounces)
+      : bounds(bounds), sprite(this->bounds) {
     sprite.texture = "bullet";
     light = PointLight{.location = bounds.center,
                        .radius = 0.01,
                        .color = glm::vec3(0.5f, 0.0f, 0.2f) * glm::vec3(25.0)};
     this->ownerID = ownerID;
+    this->maxBounces = maxBounces;
   }
   Bullet(uint32_t ownerID) : bounds(), sprite(this->bounds) {
     sprite.texture = "bullet";
@@ -37,7 +39,7 @@ class Bullet {
   uint32_t ownerID;
   PointLight light;
   int bounces = 0;
-  int maxBounces = 2;
+  int maxBounces;
 
   void moveBullet(float deltaTime, Maze& maze);
   void collideBullet();

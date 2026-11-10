@@ -18,6 +18,7 @@ class EnemyManager {
   void updateEnemyShots(PlayerTank& playerTank, Maze& maze);
   int getTotalTankValues();
   void killTank(uint32_t id);
+  void initEnemyTypes();
 
  private:
   struct ShotRay {
@@ -26,6 +27,7 @@ class EnemyManager {
     int colNum;
   };
 
+  EnemyTankCreateInfo getRandomTankInfo(int maxValue);
   void updateEnemyAI(EnemyTank& tank, PlayerTank& playerTank, Maze& maze);
   void checkAvailableShots();
   std::vector<glm::vec2> findEnemyPath(glm::ivec2 start,

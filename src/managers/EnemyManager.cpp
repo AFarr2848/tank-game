@@ -3,10 +3,12 @@
 #include <cstddef>
 #include <queue>
 #include "tank-game/Game.hpp"
+#include "tank-game/gameObjects/EnemyTank.hpp"
 #include "tank-game/gameObjects/Maze.hpp"
 #include "tank-game/gameObjects/PlayerTank.hpp"
 
 using namespace Tnk;
+const float PI = std::numbers::pi;
 
 void EnemyManager::updateEnemies(PlayerTank& playerTank,
                                  Maze& maze,
@@ -21,6 +23,57 @@ void EnemyManager::updateEnemies(PlayerTank& playerTank,
     updateEnemyAI(tnk, playerTank, maze);
   }
   trySpawnTank(playerTank, maze);
+}
+
+void EnemyManager::initEnemyTypes() {
+  EnemyTankCreateInfo dorkInfo = {
+      .tankValue = 1,
+      .maxRicochets = 0,
+      .shotTolerance = PI / 32,
+  };
+  dorkInfo.moveSpeed = 0.2;
+  dorkInfo.turnSpeed = 1;
+  dorkInfo.maxBullets = 1;
+  dorkInfo.fireCooldown = 2;
+  dorkInfo.texture = "enemyDork";
+  enemyTypes["dork"] = dorkInfo;
+
+  EnemyTankCreateInfo trooperInfo = {
+      .tankValue = 3,
+      .maxRicochets = 1,
+      .shotTolerance = PI / 32,
+  };
+  trooperInfo.moveSpeed = 0.3;
+  trooperInfo.turnSpeed = 1.5;
+  trooperInfo.maxBullets = 2;
+  trooperInfo.fireCooldown = 1;
+  trooperInfo.texture = "enemyTrooper";
+  enemyTypes["trooper"] = trooperInfo;
+
+  EnemyTankCreateInfo sprayerInfo = {
+      .tankValue = 5,
+      .maxRicochets = 0,
+      .shotTolerance = PI / 8,
+  };
+  sprayerInfo.moveSpeed = 0.1;
+  sprayerInfo.turnSpeed = 1.5;
+  sprayerInfo.maxBullets = 10;
+  sprayerInfo.fireCooldown = 0.1;
+  sprayerInfo.texture = "enemySprayer";
+  enemyTypes["sprayer"] = sprayerInfo;
+
+  EnemyTankCreateInfo sniperInfo = {
+      .tankValue = 5,
+      .maxRicochets = 3,
+      .shotTolerance = PI / 48,
+  };
+  sniperInfo.moveSpeed = 0.1;
+  sniperInfo.turnSpeed = 1.0;
+  sniperInfo.maxBullets = 1;
+  sniperInfo.fireCooldown = 4;
+  sniperInfo.bulletSpeed = 0.9;
+  sniperInfo.texture = "enemySniper";
+  enemyTypes["sniper"] = sniperInfo;
 }
 
 void EnemyManager::updateEnemyAI(EnemyTank& tank,
@@ -40,15 +93,25 @@ void EnemyManager::updateEnemyAI(EnemyTank& tank,
   }
 }
 
+EnemyTankCreateInfo EnemyManager::getRandomTankInfo(int maxValue) {
+  std::vector<EnemyTankCreateInfo> createInfos;
+  for (const auto& [name, info] : enemyTypes) {
+    if (info.tankValue <= maxValue)
+      createInfos.push_back(info);
+  }
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> distrib(0, createInfos.size() - 1);
+  return createInfos[distrib(gen)];
+}
+
 void EnemyManager::trySpawnTank(PlayerTank& playerTank, Maze& maze) {
   if (getTotalTankValues() < maxTankValue) {
     Rect bounds = {.center = getSpawnLocation(playerTank, maze),
                    .size = {0.11, 0.075},
                    .rotation = 0};
-    EnemyTankCreateInfo createInfo;
-    createInfo.tankValue = 1;
-    createInfo.maxRicochets = 1;
-    createInfo.texture = "playerTank";
+    auto createInfo = getRandomTankInfo(100);
     createInfo.bounds = bounds;
 
     enemyTanks.push_back(EnemyTank(createInfo));
@@ -166,10 +229,11 @@ void EnemyManager::updateEnemyShots(PlayerTank& playerTank, Maze& maze) {
 
     };
 
-    while (!foundCol && ray.colNum < 2) {
+    while (!foundCol && ray.colNum < 5) {
       ShotRay nextRay = calculateRayBounce(ray, maze);
       for (auto& t : enemyTanks) {
-        if (t.bounds.intersectRay(ray.pos, nextRay.pos)) {
+        if (ray.colNum <= t.maxRicochets &&
+            t.bounds.intersectRay(ray.pos, nextRay.pos)) {
           t.tankAI.hasShot = true;
           t.tankAI.shotAngle = ray.angle >= std::numbers::pi
                                    ? ray.angle - std::numbers::pi

@@ -38,9 +38,8 @@ void TextureManager::makeTextureFromImage(
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -80,10 +79,16 @@ void TextureManager::makeBlankTexture(std::string name,
 void TextureManager::makeTextures(int screenW, int screenH) {
   glGenFramebuffers(1, &fbo);
   makeTextureFromImage("thumbsup", "textures/thumbsup.jpg");
-  makeTextureFromImage("playerTank", "textures/tank2.png");
+  makeTextureFromImage("playerTank", "textures/playerTank.png");
+  makeTextureFromImage("enemyDork", "textures/dork.png");
+  makeTextureFromImage("enemyTrooper", "textures/trooper.png");
+  makeTextureFromImage("enemySniper", "textures/sniper.png");
+  makeTextureFromImage("enemySprayer", "textures/sprayer.png");
+  makeTextureFromImage("enemyRam", "textures/ram.png");
   makeTextureFromImage("bullet", "textures/bullet.png");
   makeBufferTextures(screenW, screenH);
 }
+
 void TextureManager::makeBufferTextures(int screenW, int screenH) {
   makeBlankTexture("mazeTex", screenW, screenH, GL_RGBA8, GL_UNSIGNED_BYTE,
                    GL_NEAREST);

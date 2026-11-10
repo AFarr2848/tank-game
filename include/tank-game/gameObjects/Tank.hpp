@@ -19,6 +19,7 @@ struct TankCreateInfo {
   float bulletSpeed = 0.6;
   float maxBullets = 2;
   float fireCooldown = 0.1;
+  int maxRicochets = 2;
 };
 
 class Tank {
@@ -34,6 +35,7 @@ class Tank {
     bulletSpeed = info.bulletSpeed;
     maxBullets = info.maxBullets;
     fireCooldown = info.fireCooldown;
+    maxRicochets = info.maxRicochets;
   }
 
   Tank() : id(nextID++), bounds(), sprite(this->bounds) {
@@ -47,6 +49,7 @@ class Tank {
     bulletSpeed = info.bulletSpeed;
     maxBullets = info.maxBullets;
     fireCooldown = info.fireCooldown;
+    maxRicochets = info.maxRicochets;
   }
 
   Tank(const Tank& other)
@@ -61,6 +64,7 @@ class Tank {
     maxBullets = other.maxBullets;
     fireCooldown = other.fireCooldown;
     timeSinceFired = other.timeSinceFired;
+    maxRicochets = other.maxRicochets;
   }
 
   Tank& operator=(const Tank& other) {
@@ -75,6 +79,7 @@ class Tank {
       maxBullets = other.maxBullets;
       fireCooldown = other.fireCooldown;
       timeSinceFired = other.timeSinceFired;
+      maxRicochets = other.maxRicochets;
     }
     return *this;
   }
@@ -106,7 +111,7 @@ class Tank {
             .rotation = 0
 
         },
-        this->id);
+        this->id, this->maxRicochets);
     bullet.vel = bounds.getFront() * bulletSpeed;
     bulletVec.push_back(bullet);
   }
@@ -128,6 +133,7 @@ class Tank {
   bool requestShoot = false;
   float fireCooldown;
   float timeSinceFired = 0;
+  int maxRicochets;
 
  private:
   static inline uint32_t nextID = 1;
