@@ -22,3 +22,9 @@ void EnemyTankSprayer::shoot(std::vector<Bullet>& bulletVec) {
   bullet.vel = (glm::rotate(bounds.getFront(), offset)) * bulletSpeed;
   bulletVec.push_back(bullet);
 }
+
+void EnemyTankChaser::update(float deltaTime) {
+  sprite.bounds = bounds;
+  tankAI.thinkTimer += deltaTime;
+  moveToTarget(deltaTime);
+}

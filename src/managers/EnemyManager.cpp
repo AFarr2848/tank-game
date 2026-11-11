@@ -78,6 +78,15 @@ void EnemyManager::initEnemyTypes() {
   sniperInfo.bulletSpeed = 0.9;
   sniperInfo.texture = "enemySniper";
   enemyTypes["sniper"] = sniperInfo;
+
+  EnemyTankCreateInfo chaserInfo = {
+      .tankValue = 3,
+  };
+  chaserInfo.moveSpeed = 0.5;
+  chaserInfo.turnSpeed = 3.5;
+  chaserInfo.texture = "enemyRam";
+  chaserInfo.bounds.size *= 1.5;
+  enemyTypes["chaser"] = chaserInfo;
 }
 
 void EnemyManager::updateEnemyAI(EnemyTank& tank,
@@ -98,6 +107,7 @@ void EnemyManager::updateEnemyAI(EnemyTank& tank,
 }
 
 std::string EnemyManager::getRandomTankName(int maxValue) {
+  return "chaser";
   std::vector<std::string> names;
   for (const auto& [name, info] : enemyTypes) {
     if (info.tankValue <= maxValue)
@@ -111,22 +121,21 @@ std::string EnemyManager::getRandomTankName(int maxValue) {
 
 void EnemyManager::trySpawnTank(PlayerTank& playerTank, Maze& maze) {
   if (getTotalTankValues() < maxTankValue) {
-    Rect bounds = {.center = getSpawnLocation(playerTank, maze),
-                   .size = {0.11, 0.075},
-                   .rotation = 0};
     std::string name = getRandomTankName(100);
     auto createInfo = enemyTypes[name];
-    createInfo.bounds = bounds;
+    createInfo.bounds.center = getSpawnLocation(playerTank, maze);
 
     if (name == "sprayer")
       enemyTanks.push_back(std::make_unique<EnemyTankSprayer>(createInfo));
+    else if (name == "chaser")
+      enemyTanks.push_back(std::make_unique<EnemyTankChaser>(createInfo));
     else
       enemyTanks.push_back(std::make_unique<EnemyTank>(createInfo));
   }
 }
 
 glm::vec2 EnemyManager::getSpawnLocation(PlayerTank& playerTank, Maze& maze) {
-  glm::ivec2 playerLoc = maze.mazeToNdcCoords(playerTank.bounds.center);
+  glm::ivec2 playerLoc = maze.NDCtoMazeCoords(playerTank.bounds.center);
   for (int i = 0; i < 100; i++) {
     glm::ivec2 loc = {Random::getInt(0, maze.mazeSize - 1),
                       Random::getInt(0, maze.mazeSize - 1)};

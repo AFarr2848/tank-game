@@ -11,7 +11,7 @@ namespace Tnk {
 class Maze;
 
 struct TankCreateInfo {
-  Rect bounds = Rect();
+  Rect bounds = {.center = {0, 0}, .size = {0.11, 0.075}, .rotation = 0};
   std::string texture = "playerTank";
   glm::vec3 lightColor = {10.0f, 10.0f, 10.0f};
   float moveSpeed = 0.4;
