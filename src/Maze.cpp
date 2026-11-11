@@ -1,8 +1,8 @@
 #include "tank-game/gameObjects/Maze.hpp"
 #include <algorithm>
 #include <glm/glm.hpp>
-#include <random>
 #include <vector>
+#include "tank-game/Random.hpp"
 using namespace Tnk;
 
 std::vector<glm::vec2> Maze::makeLines() {
@@ -65,7 +65,7 @@ void Maze::carveFrom(glm::vec2 cellCoords) {
   using namespace std;
   vector<glm::vec2> directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-  shuffle(directions.begin(), directions.end(), gen);
+  shuffle(directions.begin(), directions.end(), Random::get_engine());
   for (glm::vec2 dir : directions) {
     if (canCarveInDirection(cellCoords, dir)) {
       glm::vec2 newCell = cellCoords + dir;
@@ -128,8 +128,7 @@ void Maze::makeMaze(int mazeSize) {
   for (auto& vec : cells)
     vec.resize(mazeSize);
 
-  gen = std::mt19937(rd());
-  uniform_int_distribution<> distrib(0, mazeSize - 1);
-  glm::vec2 startingCell = {distrib(gen), distrib(gen)};
+  glm::vec2 startingCell = {Random::getInt(0, mazeSize - 1),
+                            Random::getInt(0, mazeSize - 1)};
   carveFrom(startingCell);
 }

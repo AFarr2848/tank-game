@@ -98,7 +98,7 @@ class Tank {
       bounds.rotation -= 2 * std::numbers::pi;
   }
 
-  void shoot(std::vector<Bullet>& bulletVec) {
+  virtual void shoot(std::vector<Bullet>& bulletVec) {
     requestShoot = false;
     timeSinceFired = 0;
     currentBullets++;

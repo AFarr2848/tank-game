@@ -25,6 +25,7 @@ class PlayerTank : public Tank {
                     InputHelper& inputHelper,
                     Maze& maze,
                     std::vector<Bullet>& bulletVec);
+  void shoot(std::vector<Bullet>& bulletVec) override;
 
  protected:
   void update(float deltaTime) override;

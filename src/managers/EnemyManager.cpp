@@ -1,11 +1,15 @@
 #include "tank-game/managers/EnemyManager.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <memory>
+#include <numbers>
 #include <queue>
 #include "tank-game/Game.hpp"
+#include "tank-game/Random.hpp"
 #include "tank-game/gameObjects/EnemyTank.hpp"
 #include "tank-game/gameObjects/Maze.hpp"
 #include "tank-game/gameObjects/PlayerTank.hpp"
+#include "tank-game/gameObjects/SpecialTanks.hpp"
 
 using namespace Tnk;
 const float PI = std::numbers::pi;
@@ -15,12 +19,12 @@ void EnemyManager::updateEnemies(PlayerTank& playerTank,
                                  std::vector<Bullet>& bulletVec,
                                  float deltaTime) {
   for (auto& tnk : enemyTanks) {
-    tnk.update(deltaTime);
-    if (tnk.requestShoot) {
-      tnk.shoot(bulletVec);
+    tnk->update(deltaTime);
+    if (tnk->requestShoot) {
+      tnk->shoot(bulletVec);
     }
 
-    updateEnemyAI(tnk, playerTank, maze);
+    updateEnemyAI(*tnk, playerTank, maze);
   }
   trySpawnTank(playerTank, maze);
 }
@@ -57,7 +61,7 @@ void EnemyManager::initEnemyTypes() {
   };
   sprayerInfo.moveSpeed = 0.1;
   sprayerInfo.turnSpeed = 1.5;
-  sprayerInfo.maxBullets = 10;
+  sprayerInfo.maxBullets = 100;
   sprayerInfo.fireCooldown = 0.1;
   sprayerInfo.texture = "enemySprayer";
   enemyTypes["sprayer"] = sprayerInfo;
@@ -93,17 +97,16 @@ void EnemyManager::updateEnemyAI(EnemyTank& tank,
   }
 }
 
-EnemyTankCreateInfo EnemyManager::getRandomTankInfo(int maxValue) {
-  std::vector<EnemyTankCreateInfo> createInfos;
+std::string EnemyManager::getRandomTankName(int maxValue) {
+  std::vector<std::string> names;
   for (const auto& [name, info] : enemyTypes) {
     if (info.tankValue <= maxValue)
-      createInfos.push_back(info);
+      names.push_back(name);
   }
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> distrib(0, createInfos.size() - 1);
-  return createInfos[distrib(gen)];
+  int tankIndex = Random::getInt(0, int(names.size() - 1));
+
+  return names[tankIndex];
 }
 
 void EnemyManager::trySpawnTank(PlayerTank& playerTank, Maze& maze) {
@@ -111,21 +114,22 @@ void EnemyManager::trySpawnTank(PlayerTank& playerTank, Maze& maze) {
     Rect bounds = {.center = getSpawnLocation(playerTank, maze),
                    .size = {0.11, 0.075},
                    .rotation = 0};
-    auto createInfo = getRandomTankInfo(100);
+    std::string name = getRandomTankName(100);
+    auto createInfo = enemyTypes[name];
     createInfo.bounds = bounds;
 
-    enemyTanks.push_back(EnemyTank(createInfo));
+    if (name == "sprayer")
+      enemyTanks.push_back(std::make_unique<EnemyTankSprayer>(createInfo));
+    else
+      enemyTanks.push_back(std::make_unique<EnemyTank>(createInfo));
   }
 }
 
 glm::vec2 EnemyManager::getSpawnLocation(PlayerTank& playerTank, Maze& maze) {
-  std::random_device rd;
-
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> distrib(0, maze.mazeSize - 1);
   glm::ivec2 playerLoc = maze.mazeToNdcCoords(playerTank.bounds.center);
   for (int i = 0; i < 100; i++) {
-    glm::ivec2 loc = {distrib(gen), distrib(gen)};
+    glm::ivec2 loc = {Random::getInt(0, maze.mazeSize - 1),
+                      Random::getInt(0, maze.mazeSize - 1)};
     if (!(abs(playerLoc.x - loc.x) <= 1 && abs(playerLoc.y - loc.y) <= 1)) {
       return maze.mazeToNdcCoords(loc);
     }
@@ -133,24 +137,24 @@ glm::vec2 EnemyManager::getSpawnLocation(PlayerTank& playerTank, Maze& maze) {
   throw std::runtime_error("oopies tanks spawn failed oops");
 }
 
-Tank* EnemyManager::getEnemyByID(uint32_t id) {
+std::unique_ptr<EnemyTank>* EnemyManager::getEnemyByID(uint32_t id) {
   for (auto& t : enemyTanks) {
-    if (t.id == id)
+    if (t->id == id)
       return &t;
   }
   return nullptr;
 }
 
 void EnemyManager::killTank(uint32_t id) {
-  Tank* t = getEnemyByID(id);
+  auto t = getEnemyByID(id);
   if (t != nullptr)
     std::erase(enemyTanks, *t);
 }
 
 int EnemyManager::getTotalTankValues() {
   int sum = 0;
-  for (EnemyTank& t : enemyTanks) {
-    sum += t.tankValue;
+  for (auto& t : enemyTanks) {
+    sum += t->tankValue;
   }
   return sum;
 }
@@ -217,8 +221,9 @@ std::vector<glm::vec2> EnemyManager::findEnemyPath(glm::ivec2 start,
 }
 
 void EnemyManager::updateEnemyShots(PlayerTank& playerTank, Maze& maze) {
-  for (auto& t : enemyTanks)
-    t.tankAI.hasShot = false;
+  for (auto& t : enemyTanks) {
+    t->tankAI.hasShot = false;
+  }
 
   const int NUM_RAYS = 360;
   for (int i = 0; i < NUM_RAYS; i++) {
@@ -232,19 +237,70 @@ void EnemyManager::updateEnemyShots(PlayerTank& playerTank, Maze& maze) {
     while (!foundCol && ray.colNum < 5) {
       ShotRay nextRay = calculateRayBounce(ray, maze);
       for (auto& t : enemyTanks) {
-        if (ray.colNum <= t.maxRicochets &&
-            t.bounds.intersectRay(ray.pos, nextRay.pos)) {
-          t.tankAI.hasShot = true;
-          t.tankAI.shotAngle = ray.angle >= std::numbers::pi
-                                   ? ray.angle - std::numbers::pi
-                                   : ray.angle + std::numbers::pi;
-          foundCol = true;
-          break;
+        if (ray.colNum <= t->maxRicochets &&
+            t->bounds.intersectRay(ray.pos, nextRay.pos)) {
+          if (t->tankAI.hasShot && t->tankAI.currentShotRicochets < ray.colNum)
+            continue;
+          float newShotAngle = atan2(sin(ray.angle + std::numbers::pi),
+                                     cos(ray.angle + std::numbers::pi));
+          if (t->tankAI.hasShot) {
+            float angleDiff =
+                atan2(std::sin(t->tankAI.shotAngle - t->bounds.rotation),
+                      std::cos(t->tankAI.shotAngle - t->bounds.rotation));
+            float newAngleDiff =
+                atan2(std::sin(newShotAngle - t->bounds.rotation),
+                      std::cos(newShotAngle - t->bounds.rotation));
+            if (abs(angleDiff) <= abs(newShotAngle))
+              continue;
+          }
+          if (verifyShot(*t, newShotAngle, playerTank, maze)) {
+            t->tankAI.hasShot = true;
+            t->tankAI.currentShotRicochets = ray.colNum;
+            t->tankAI.shotAngle = newShotAngle;
+            foundCol = true;
+            break;
+          }
         }
       }
       ray = nextRay;
     }
   }
+}
+
+bool EnemyManager::verifyShot(const EnemyTank& shooter,
+                              float angle,
+                              const PlayerTank& player,
+                              Maze& maze) {
+  const float bulletRadius = 0.03f;  // use your real bullet size / half-width
+
+  glm::vec2 dir = {std::cos(angle), std::sin(angle)};
+  glm::vec2 muzzle =
+      shooter.bounds.center + dir * (shooter.bounds.size.x * 0.5f);
+  glm::vec2 perp = {-dir.y, dir.x};
+
+  int centerHitSegment = -1;
+
+  for (float offset : {0.0f, -bulletRadius, bulletRadius}) {
+    ShotRay ray = {muzzle + perp * offset, angle, 0};
+    int hitSegment = -1;
+
+    while (ray.colNum <= shooter.maxRicochets) {
+      ShotRay next = calculateRayBounce(ray, maze);
+      if (player.bounds.intersectRay(ray.pos, next.pos)) {
+        hitSegment = ray.colNum;
+        break;
+      }
+      ray = next;
+    }
+
+    if (hitSegment == -1)
+      return false;
+    if (offset == 0.0f)
+      centerHitSegment = hitSegment;
+    else if (hitSegment != centerHitSegment)
+      return false;
+  }
+  return true;
 }
 
 EnemyManager::ShotRay EnemyManager::calculateRayBounce(ShotRay ray,

@@ -23,6 +23,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/TextureManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/managers/EnemyManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/Bullet.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/SpecialTanks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/EnemyTank.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/PlayerTank.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Geometry.cpp

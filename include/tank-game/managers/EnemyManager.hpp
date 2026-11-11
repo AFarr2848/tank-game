@@ -5,12 +5,12 @@ namespace Tnk {
 class PlayerTank;
 class EnemyManager {
  public:
-  std::vector<EnemyTank> enemyTanks;
+  std::vector<std::unique_ptr<EnemyTank>> enemyTanks;
   std::unordered_map<std::string, EnemyTankCreateInfo> enemyTypes;
   int maxTankValue = 1;
 
   void addTank(std::string type);
-  Tank* getEnemyByID(uint32_t id);
+  std::unique_ptr<EnemyTank>* getEnemyByID(uint32_t id);
   void updateEnemies(PlayerTank& playerTank,
                      Maze& maze,
                      std::vector<Bullet>& bulletVec,
@@ -27,7 +27,7 @@ class EnemyManager {
     int colNum;
   };
 
-  EnemyTankCreateInfo getRandomTankInfo(int maxValue);
+  std::string getRandomTankName(int maxValue);
   void updateEnemyAI(EnemyTank& tank, PlayerTank& playerTank, Maze& maze);
   void checkAvailableShots();
   std::vector<glm::vec2> findEnemyPath(glm::ivec2 start,
@@ -38,6 +38,11 @@ class EnemyManager {
 
   void trySpawnTank(PlayerTank& playerTank, Maze& maze);
   glm::vec2 getSpawnLocation(PlayerTank& playerTank, Maze& maze);
+
+  bool verifyShot(const EnemyTank& shooter,
+                  float angle,
+                  const PlayerTank& player,
+                  Maze& maze);
 };
 
 }  // namespace Tnk

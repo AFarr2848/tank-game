@@ -37,6 +37,26 @@ glm::vec2 PlayerTank::checkMoveCollision(float move, Maze& maze) {
   return moveVec;
 }
 
+void PlayerTank::shoot(std::vector<Bullet>& bulletVec) {
+  if (currentBullets < maxBullets) {
+    requestShoot = false;
+    timeSinceFired = 0;
+    currentBullets++;
+    Bullet bullet(
+        Rect{
+
+            .center = bounds.center +
+                      (bounds.getFront() * bounds.size.y / glm::vec2(2)),
+            .size = glm::vec2(0.03),
+            .rotation = 0
+
+        },
+        this->id, this->maxRicochets);
+    bullet.vel = bounds.getFront() * bulletSpeed;
+    bulletVec.push_back(bullet);
+  }
+}
+
 void PlayerTank::updateInputs(float deltaTime,
                               InputHelper& inputHelper,
                               Maze& maze,

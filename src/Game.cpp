@@ -1,6 +1,7 @@
 #include "tank-game/Game.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
+#include <memory>
 #include <tank-game/InputHelper.hpp>
 #include "tank-game/Lighting.hpp"
 #include "tank-game/TimingData.hpp"
@@ -41,7 +42,7 @@ std::array<PointLight, MAX_LIGHTS> Game::getLights() {
 
   for (const auto& enemy : enemyManager.enemyTanks) {
     if (currentLightIndex < MAX_LIGHTS) {
-      lights[currentLightIndex++] = enemy.light;
+      lights[currentLightIndex++] = enemy->light;
     }
   }
 
@@ -74,7 +75,7 @@ void Game::collideBullets() {
       if (b.ownerID == playerTank.id)
         t = &playerTank;
       else if (enemyManager.getEnemyByID(b.ownerID) != nullptr)
-        t = enemyManager.getEnemyByID(b.ownerID);
+        t = enemyManager.getEnemyByID(b.ownerID)->get();
       if (t != nullptr)
         t->currentBullets--;
     }
@@ -84,8 +85,8 @@ void Game::collideBullets() {
   for (auto& b : bulletVec) {
     std::vector<EnemyTank*> toRemove;
     for (auto& t : enemyManager.enemyTanks) {
-      if (b.ownerID != t.id && t.bounds.contains(b.bounds.center))
-        toRemove.push_back(&t);
+      if (b.ownerID != t->id && t->bounds.contains(b.bounds.center))
+        toRemove.push_back(&(*t));
     }
     for (auto t : toRemove)
       enemyManager.killTank(t->id);
@@ -100,9 +101,9 @@ std::vector<Sprite> Game::getSprites() {
     b.sprite.bounds = b.bounds;
     sprites.push_back(b.sprite);
   }
-  for (EnemyTank& t : enemyManager.enemyTanks) {
-    t.sprite.bounds = t.bounds;
-    sprites.push_back(t.sprite);
+  for (auto& t : enemyManager.enemyTanks) {
+    t->sprite.bounds = t->bounds;
+    sprites.push_back(t->sprite);
   }
 
   return sprites;

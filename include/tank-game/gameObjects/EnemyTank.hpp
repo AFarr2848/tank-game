@@ -8,6 +8,7 @@ struct TankAI {
   bool hasShot = false;
   float desireAngle;
   float shotTolerance;
+  int currentShotRicochets;
 };
 struct EnemyTankCreateInfo : public TankCreateInfo {
   int tankValue = 1;

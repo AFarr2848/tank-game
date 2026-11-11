@@ -10,10 +10,8 @@ void EnemyTank::update(float deltaTime) {
   timeSinceFired += deltaTime;
   if (tankAI.hasShot) {
     aimAtTarget(deltaTime);
-    std::cout << (getAngleDifference(tankAI.shotAngle) / PI) << std::endl;
     if (canShoot()) {
       requestShoot = true;
-      tankAI.hasShot = false;
     }
 
   } else
@@ -30,15 +28,15 @@ void EnemyTank::aimAtTarget(float deltaTime) {
   float angleDiff = atan2(std::sin(tankAI.shotAngle - bounds.rotation),
                           std::cos(tankAI.shotAngle - bounds.rotation));
 
-  float turnDirection = (angleDiff < 0.0f) ? -1.0f : 1.0f;
+  float turn =
+      std::clamp(angleDiff, -turnSpeed * deltaTime, turnSpeed * deltaTime);
 
-  turnTank(turnDirection * turnSpeed * deltaTime);
+  turnTank(turn);
 }
 
 void EnemyTank::moveToTarget(float deltaTime) {
-  glm::vec2 targetDist = bounds.center - tankAI.moveTarget;
-
-  tankAI.desireAngle = (2 * PI) - atan2(targetDist.y, -targetDist.x);
+  tankAI.desireAngle = atan2(tankAI.moveTarget.y - bounds.center.y,
+                             tankAI.moveTarget.x - bounds.center.x);
 
   /*
   std::cout << "Current target: " << glm::to_string(tankAI.moveTarget)
@@ -52,13 +50,14 @@ void EnemyTank::moveToTarget(float deltaTime) {
   float angleDiff = getAngleDifference(tankAI.desireAngle);
 
   float absDiff = abs(angleDiff);
-  float turnDirection = (angleDiff < 0.0f) ? -1.0f : 1.0f;
 
-  if (absDiff > PI / 4.0) {
-    turnTank(turnDirection * turnSpeed * deltaTime);
-  } else {
+  float turn =
+      std::clamp(angleDiff, -turnSpeed * deltaTime, turnSpeed * deltaTime);
+
+  turnTank(turn);
+
+  if (absDiff <= PI / 4.0) {
     moveTank(sprite.bounds.getFront() * (moveSpeed * deltaTime));
-    turnTank(turnDirection * turnSpeed * deltaTime);
   }
 }
 
