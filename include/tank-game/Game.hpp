@@ -25,6 +25,8 @@ class Game {
   std::vector<Sprite> getSprites();
   std::array<PointLight, MAX_LIGHTS> getLights();
 
+  bool gameOver = false;
+
  private:
   EnemyManager enemyManager;
 

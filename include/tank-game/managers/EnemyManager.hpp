@@ -19,6 +19,7 @@ class EnemyManager {
   int getTotalTankValues();
   void killTank(uint32_t id);
   void initEnemyTypes();
+  bool checkPlayerCollisions(PlayerTank& playerTank);
 
  private:
   struct ShotRay {

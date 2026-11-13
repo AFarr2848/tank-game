@@ -55,15 +55,19 @@ void Game::getMazeLines() {
 }
 
 void Game::updateGame() {
-  if (playerTank.mathTimer > AI_THINK_INTERVAL) {
-    playerTank.mathTimer = 0;
-    enemyManager.updateEnemyShots(playerTank, maze);
+  if (!gameOver) {
+    if (playerTank.mathTimer > AI_THINK_INTERVAL) {
+      playerTank.mathTimer = 0;
+      enemyManager.updateEnemyShots(playerTank, maze);
+    }
+
+    enemyManager.updateEnemies(playerTank, maze, bulletVec,
+                               timingData.deltaTime);
+
+    gameOver = enemyManager.checkPlayerCollisions(playerTank);
+    collideBullets();
+    playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
   }
-
-  enemyManager.updateEnemies(playerTank, maze, bulletVec, timingData.deltaTime);
-
-  collideBullets();
-  playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
 }
 
 void Game::collideBullets() {
@@ -83,6 +87,10 @@ void Game::collideBullets() {
   std::erase_if(bulletVec, [](auto& b) { return b.bounces > b.maxBounces; });
 
   for (auto& b : bulletVec) {
+    if (b.ownerID != playerTank.id &&
+        playerTank.bounds.contains(b.bounds.center))
+      gameOver = true;
+
     std::vector<EnemyTank*> toRemove;
     for (auto& t : enemyManager.enemyTanks) {
       if (b.ownerID == playerTank.id && t->bounds.contains(b.bounds.center))

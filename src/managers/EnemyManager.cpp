@@ -176,6 +176,16 @@ int EnemyManager::getTotalTankValues() {
   return sum;
 }
 
+bool EnemyManager::checkPlayerCollisions(PlayerTank& playerTank) {
+  for (auto& t : enemyTanks) {
+    if (typeid(t) == typeid(EnemyTankChaser)) {
+      if (t->bounds.contains(playerTank.bounds.center))
+        return true;
+    }
+  }
+  return false;
+}
+
 std::vector<glm::vec2> EnemyManager::findEnemyPath(glm::ivec2 start,
                                                    glm::ivec2 end,
                                                    Maze& maze) {
