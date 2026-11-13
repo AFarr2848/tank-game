@@ -85,7 +85,7 @@ void Game::collideBullets() {
   for (auto& b : bulletVec) {
     std::vector<EnemyTank*> toRemove;
     for (auto& t : enemyManager.enemyTanks) {
-      if (b.ownerID != t->id && t->bounds.contains(b.bounds.center))
+      if (b.ownerID == playerTank.id && t->bounds.contains(b.bounds.center))
         toRemove.push_back(&(*t));
     }
     for (auto t : toRemove)

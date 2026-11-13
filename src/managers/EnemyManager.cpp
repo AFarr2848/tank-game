@@ -31,7 +31,7 @@ void EnemyManager::updateEnemies(PlayerTank& playerTank,
 
 void EnemyManager::initEnemyTypes() {
   EnemyTankCreateInfo dorkInfo = {
-      .tankValue = 1,
+      .tankValue = 2,
       .maxRicochets = 0,
       .shotTolerance = PI / 32,
   };
@@ -43,7 +43,7 @@ void EnemyManager::initEnemyTypes() {
   enemyTypes["dork"] = dorkInfo;
 
   EnemyTankCreateInfo trooperInfo = {
-      .tankValue = 3,
+      .tankValue = 4,
       .maxRicochets = 1,
       .shotTolerance = PI / 32,
   };
@@ -55,7 +55,7 @@ void EnemyManager::initEnemyTypes() {
   enemyTypes["trooper"] = trooperInfo;
 
   EnemyTankCreateInfo sprayerInfo = {
-      .tankValue = 5,
+      .tankValue = 7,
       .maxRicochets = 0,
       .shotTolerance = PI / 8,
   };
@@ -67,7 +67,7 @@ void EnemyManager::initEnemyTypes() {
   enemyTypes["sprayer"] = sprayerInfo;
 
   EnemyTankCreateInfo sniperInfo = {
-      .tankValue = 5,
+      .tankValue = 7,
       .maxRicochets = 3,
       .shotTolerance = PI / 48,
   };
@@ -75,12 +75,12 @@ void EnemyManager::initEnemyTypes() {
   sniperInfo.turnSpeed = 1.0;
   sniperInfo.maxBullets = 1;
   sniperInfo.fireCooldown = 4;
-  sniperInfo.bulletSpeed = 0.9;
+  sniperInfo.bulletSpeed = 1.5;
   sniperInfo.texture = "enemySniper";
   enemyTypes["sniper"] = sniperInfo;
 
   EnemyTankCreateInfo chaserInfo = {
-      .tankValue = 3,
+      .tankValue = 5,
   };
   chaserInfo.moveSpeed = 0.5;
   chaserInfo.turnSpeed = 3.5;
@@ -107,12 +107,13 @@ void EnemyManager::updateEnemyAI(EnemyTank& tank,
 }
 
 std::string EnemyManager::getRandomTankName(int maxValue) {
-  return "chaser";
   std::vector<std::string> names;
   for (const auto& [name, info] : enemyTypes) {
     if (info.tankValue <= maxValue)
       names.push_back(name);
   }
+  if (names.empty())
+    return "dork";
 
   int tankIndex = Random::getInt(0, int(names.size() - 1));
 
@@ -120,17 +121,22 @@ std::string EnemyManager::getRandomTankName(int maxValue) {
 }
 
 void EnemyManager::trySpawnTank(PlayerTank& playerTank, Maze& maze) {
-  if (getTotalTankValues() < maxTankValue) {
-    std::string name = getRandomTankName(100);
-    auto createInfo = enemyTypes[name];
+  if (nextTankSpawn == "") {
+    int maxValue = maxTankValue / 2;
+    nextTankSpawn = getRandomTankName(maxValue);
+  }
+
+  else if (getTotalTankValues() < maxTankValue) {
+    auto createInfo = enemyTypes[nextTankSpawn];
     createInfo.bounds.center = getSpawnLocation(playerTank, maze);
 
-    if (name == "sprayer")
+    if (nextTankSpawn == "sprayer")
       enemyTanks.push_back(std::make_unique<EnemyTankSprayer>(createInfo));
-    else if (name == "chaser")
+    else if (nextTankSpawn == "chaser")
       enemyTanks.push_back(std::make_unique<EnemyTankChaser>(createInfo));
     else
       enemyTanks.push_back(std::make_unique<EnemyTank>(createInfo));
+    nextTankSpawn = "";
   }
 }
 
@@ -155,9 +161,11 @@ std::unique_ptr<EnemyTank>* EnemyManager::getEnemyByID(uint32_t id) {
 }
 
 void EnemyManager::killTank(uint32_t id) {
-  auto t = getEnemyByID(id);
-  if (t != nullptr)
-    std::erase(enemyTanks, *t);
+  auto& t = *getEnemyByID(id);
+  if (t != nullptr) {
+    maxTankValue += 1;
+    std::erase(enemyTanks, t);
+  }
 }
 
 int EnemyManager::getTotalTankValues() {

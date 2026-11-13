@@ -27,6 +27,8 @@ class EnemyManager {
     int colNum;
   };
 
+  std::string nextTankSpawn;
+
   std::string getRandomTankName(int maxValue);
   void updateEnemyAI(EnemyTank& tank, PlayerTank& playerTank, Maze& maze);
   void checkAvailableShots();

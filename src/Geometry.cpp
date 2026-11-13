@@ -91,11 +91,13 @@ std::vector<CollisionDirection> Rect::collideMaze(Maze& maze) {
     }
 
     if (isWallPresent) {
-      if (center.x < nearestX) {
+      float difference = center.x - nearestX;
+      if (difference < 0) {
         collisions.push_back(CollisionDirection::DIR_EAST);
-
-      } else if (center.x > nearestX) {
+        center.x -= (boundsRightX - nearestX);
+      } else {
         collisions.push_back(CollisionDirection::DIR_WEST);
+        center.x += (nearestX - boundsLeftX);
       }
     }
   }
@@ -120,12 +122,18 @@ std::vector<CollisionDirection> Rect::collideMaze(Maze& maze) {
     }
 
     if (isWallPresent) {
-      if (center.y < nearestY) {
+      float difference = center.y - nearestY;
+      if (difference < 0) {
         collisions.push_back(CollisionDirection::DIR_NORTH);
-      } else if (center.y > nearestY) {
+        center.y -= (boundsRightY - nearestY);
+      } else {
         collisions.push_back(CollisionDirection::DIR_SOUTH);
+        center.y += (nearestY - boundsLeftY);
       }
     }
   }
+
+  this->center = (center - glm::vec2(0.5)) / glm::vec2(0.5);
+
   return collisions;
-};
+}

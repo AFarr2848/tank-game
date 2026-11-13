@@ -31,7 +31,7 @@ void Engine::startEngine() {
                                         *lighting);
   game = std::make_unique<Game>(*inputHelper, *timingData);
 
-  win->renderSize = {480, 480};
+  win->renderSize = {320, 320};
 
   std::cout << "Window init..." << std::endl;
   win->init();
