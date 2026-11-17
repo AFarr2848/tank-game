@@ -84,9 +84,9 @@ class Lighting {
   MergeInfo mergeInfo;
   MazeBakeInfo bakeInfo;
   GLint average_resolutionLocation;
-  float lightingResolution = 0.5;
+  float lightingResolution = 1.5;
 
-  bool lightingEnabled = false;
+  bool lightingEnabled = true;
 
  private:
   CascadeInfoLocations cascadeLocations;

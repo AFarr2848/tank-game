@@ -25,8 +25,10 @@ void main() {
   ivec2 size = textureSize(lightingTex, 0);
   ivec2 maxProbe = size / baseInterval - 1;
 
-  //fixme
-  vec2 f = gl_FragCoord.xy * resolution / float(baseInterval) - 0.5;
+  vec2 screenSize = vec2(textureSize(screenTex, 0));
+  vec2 p = TexCoords * screenSize;
+
+  vec2 f = p * resolution / float(baseInterval) - 0.5;
   ivec2 b = ivec2(floor(f));
   vec2 w = fract(f);
   vec3 light = mix(
@@ -34,6 +36,7 @@ void main() {
       mix(probeLight(b + ivec2(0, 1), maxProbe), probeLight(b + ivec2(1, 1), maxProbe), w.x),
       w.y);
 
-  vec3 scene = texelFetch(screenTex, ivec2(gl_FragCoord.xy), 0).rgb;
+  ivec2 px = clamp(ivec2(floor(p)), ivec2(0), ivec2(screenSize) - 1);
+  vec3 scene = texelFetch(screenTex, px, 0).rgb;
   FragColor = vec4(scene * (vec3(0.15) + light), 1.0);
 }
