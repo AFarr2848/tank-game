@@ -3,6 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <memory>
 #include <tank-game/InputHelper.hpp>
+#include "tank-game/GUI.hpp"
 #include "tank-game/Lighting.hpp"
 #include "tank-game/TimingData.hpp"
 #include "tank-game/gameObjects/Bullet.hpp"
@@ -61,13 +62,21 @@ void Game::updateGame() {
       enemyManager.updateEnemyShots(playerTank, maze);
     }
 
-    enemyManager.updateEnemies(playerTank, maze, bulletVec,
-                               timingData.deltaTime);
+    if (!gui.values.disableBots)
+      enemyManager.updateEnemies(playerTank, maze, bulletVec,
+                                 timingData.deltaTime);
 
     gameOver = enemyManager.checkPlayerCollisions(playerTank);
+    processInput();
+
     collideBullets();
-    playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
   }
+}
+
+void Game::processInput() {
+  playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
+  if (inputHelper.isKeyDownToggle(GLFW_KEY_ESCAPE))
+    isPaused = !isPaused;
 }
 
 void Game::collideBullets() {

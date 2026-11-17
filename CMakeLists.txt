@@ -6,8 +6,26 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Redirect output binaries (html, js, wasm) to a clean /dist folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/dist")
+
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/external/imgui)
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui_demo.cpp
+)
+set(IMGUI_BACKEND_SOURCES
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+)
+add_library(imgui STATIC ${IMGUI_SOURCES} ${IMGUI_BACKEND_SOURCES})
+target_include_directories(imgui PUBLIC
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+)
+
 
 # Source files
 set(SOURCES
@@ -28,6 +46,7 @@ set(SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gameObjects/PlayerTank.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Geometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Lighting.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/GUI.cpp
 )
 
 # Output executable target
@@ -49,7 +68,13 @@ file(GLOB_RECURSE SHADER_FILES
 set_target_properties(tank-game PROPERTIES LINK_DEPENDS "${SHADER_FILES}")
 
 target_include_directories(tank-game PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(tank-game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/external)
+target_include_directories(tank-game PRIVATE
+${CMAKE_CURRENT_SOURCE_DIR}/include/external
+${CMAKE_CURRENT_SOURCE_DIR}/include/external/imgui
+
+)
+
+target_link_libraries(tank-game imgui)
 
 if(EMSCRIPTEN)
   # Base Emscripten link options

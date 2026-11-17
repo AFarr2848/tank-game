@@ -1,5 +1,4 @@
 #pragma once
-#include <random>
 #include "tank-game/gameObjects/Maze.hpp"
 #include "tank-game/gameObjects/PlayerTank.hpp"
 #include "tank-game/managers/EnemyManager.hpp"
@@ -7,11 +6,12 @@
 namespace Tnk {
 const float AI_THINK_INTERVAL = 0.3;
 class InputHelper;
+class Gui;
 struct TimingData;
 class Game {
  public:
-  Game(InputHelper& inputHelper, TimingData& timingData)
-      : inputHelper(inputHelper), timingData(timingData) {};
+  Game(InputHelper& inputHelper, TimingData& timingData, Gui& gui)
+      : inputHelper(inputHelper), timingData(timingData), gui(gui) {};
 
   void startGame();
   void getMazeLines();
@@ -26,15 +26,18 @@ class Game {
   std::array<PointLight, MAX_LIGHTS> getLights();
 
   bool gameOver = false;
+  bool isPaused = false;
 
  private:
   EnemyManager enemyManager;
 
   InputHelper& inputHelper;
   TimingData& timingData;
+  Gui& gui;
   int maxTankValue = 1;
 
   void collideBullets();
+  void processInput();
 
   std::vector<Bullet> bulletVec;
 };

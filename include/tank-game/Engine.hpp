@@ -12,6 +12,7 @@ class Game;
 class InputHelper;
 struct TimingData;
 class Lighting;
+class Gui;
 
 class Engine {
  public:
@@ -30,6 +31,7 @@ class Engine {
   std::unique_ptr<InputHelper> inputHelper;
   std::unique_ptr<TimingData> timingData;
   std::unique_ptr<Lighting> lighting;
+  std::unique_ptr<Gui> gui;
 
   static void mainLoop(void* arg);
   void update();

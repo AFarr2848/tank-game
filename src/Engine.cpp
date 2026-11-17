@@ -5,9 +5,9 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <memory>
-#include <numbers>
 #include <ostream>
 #include "emscripten/emscripten.h"
+#include "tank-game/GUI.hpp"
 #include "tank-game/Game.hpp"
 #include "tank-game/InputHelper.hpp"
 #include "tank-game/Lighting.hpp"
@@ -23,15 +23,19 @@ void Engine::startEngine() {
   timingData = std::make_unique<TimingData>();
   inputHelper = std::make_unique<InputHelper>();
   win = std::make_unique<Window>(*inputHelper);
+  gui = std::make_unique<Gui>(*win);
+
   shaderMan = std::make_unique<ShaderManager>();
   bufferMan = std::make_unique<BufferManager>();
   texMan = std::make_unique<TextureManager>();
   lighting = std::make_unique<Lighting>();
   renderer = std::make_unique<Renderer>(*win, *shaderMan, *bufferMan, *texMan,
                                         *lighting);
-  game = std::make_unique<Game>(*inputHelper, *timingData);
+  game = std::make_unique<Game>(*inputHelper, *timingData, *gui);
 
-  win->renderSize = {320, 320};
+  win->renderSize = glm::vec2(gui->values.gameResolution);
+  lighting->lightingResolution = gui->values.lightingResolution;
+  lighting->lightingEnabled = gui->values.enableLighting;
 
   std::cout << "Window init..." << std::endl;
   win->init();
@@ -54,6 +58,7 @@ void Engine::startEngine() {
                           shaderMan->shaderProgramMap["mergeProgram"],
                           shaderMan->shaderProgramMap["mazeBakeProgram"],
                           shaderMan->shaderProgramMap["averageProgram"]);
+  gui->initGui();
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_STENCIL_TEST);
@@ -117,6 +122,20 @@ void Engine::update() {
 
   } else {
     renderer->drawImage();
+  }
+
+  if (game->isPaused) {
+    game->isPaused = gui->drawPauseMenu();
+
+    if (win->renderSize != glm::ivec2(gui->values.gameResolution)) {
+      win->renderSize = glm::ivec2(gui->values.gameResolution);
+      screenResized();
+    }
+
+    lighting->lightingEnabled = gui->values.enableLighting;
+    if (lighting->lightingResolution != gui->values.lightingResolution) {
+      changeLightingResolution(gui->values.lightingResolution);
+    }
   }
 
   unsigned char px[4];

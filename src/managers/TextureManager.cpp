@@ -96,19 +96,19 @@ void TextureManager::makeBufferTextures(int screenW, int screenH) {
 
 void TextureManager::makeLightingTextures(glm::vec2 texSize) {
   makeBlankTexture("cascade0", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
-                   GL_NEAREST);
+                   GL_LINEAR);
   makeBlankTexture("cascade1", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
-                   GL_NEAREST);
+                   GL_LINEAR);
   makeBlankTexture("cascade2", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
-                   GL_NEAREST);
+                   GL_LINEAR);
   makeBlankTexture("cascade3", texSize.x, texSize.y, GL_RGBA16F, GL_HALF_FLOAT,
-                   GL_NEAREST);
+                   GL_LINEAR);
   makeBlankTexture("lightingTex", texSize.x, texSize.y, GL_RGBA16F,
                    GL_HALF_FLOAT, GL_LINEAR);
   makeBlankTexture("tempLightingTex", texSize.x, texSize.y, GL_RGBA16F,
                    GL_HALF_FLOAT, GL_LINEAR);
   makeBlankTexture("mazeBakeTex", texSize.x, texSize.y, GL_RGBA16F,
-                   GL_HALF_FLOAT, GL_NEAREST);
+                   GL_HALF_FLOAT, GL_LINEAR);
 }
 
 void TextureManager::makeWallTex(Maze& maze) {
