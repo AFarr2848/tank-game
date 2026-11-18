@@ -13,6 +13,9 @@ class Gui {
   void initGui();
   void shutdown();
   bool drawPauseMenu();
+  bool drawGameOver();
+  void beginDraw();
+  void endDraw();
   ~Gui();
 
   GuiValues values;

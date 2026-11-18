@@ -124,7 +124,12 @@ void Engine::update() {
     renderer->drawImage();
   }
 
-  if (game->gamePaused) {
+  gui->beginDraw();
+
+  if (game->gameOver) {
+    if (gui->drawGameOver())
+      emscripten_run_script("window.location.reload();");
+  } else if (game->gamePaused) {
     game->gamePaused = gui->drawPauseMenu();
 
     if (win->renderSize != glm::ivec2(gui->values.gameResolution)) {
@@ -137,6 +142,7 @@ void Engine::update() {
       changeLightingResolution(gui->values.lightingResolution);
     }
   }
+  gui->endDraw();
 
   unsigned char px[4];
   glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px);  // forces a sync
