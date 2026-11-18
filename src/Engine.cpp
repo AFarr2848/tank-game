@@ -124,8 +124,8 @@ void Engine::update() {
     renderer->drawImage();
   }
 
-  if (game->isPaused) {
-    game->isPaused = gui->drawPauseMenu();
+  if (game->gamePaused) {
+    game->gamePaused = gui->drawPauseMenu();
 
     if (win->renderSize != glm::ivec2(gui->values.gameResolution)) {
       win->renderSize = glm::ivec2(gui->values.gameResolution);

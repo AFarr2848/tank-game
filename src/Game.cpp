@@ -56,7 +56,7 @@ void Game::getMazeLines() {
 }
 
 void Game::updateGame() {
-  if (!gameOver) {
+  if (!gameOver && !gamePaused) {
     if (playerTank.mathTimer > AI_THINK_INTERVAL) {
       playerTank.mathTimer = 0;
       enemyManager.updateEnemyShots(playerTank, maze);
@@ -67,16 +67,17 @@ void Game::updateGame() {
                                  timingData.deltaTime);
 
     gameOver = enemyManager.checkPlayerCollisions(playerTank);
-    processInput();
 
     collideBullets();
   }
+  processInput();
 }
 
 void Game::processInput() {
-  playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
+  if (!gamePaused)
+    playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
   if (inputHelper.isKeyDownToggle(GLFW_KEY_ESCAPE))
-    isPaused = !isPaused;
+    gamePaused = !gamePaused;
 }
 
 void Game::collideBullets() {

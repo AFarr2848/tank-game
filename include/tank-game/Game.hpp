@@ -26,7 +26,7 @@ class Game {
   std::array<PointLight, MAX_LIGHTS> getLights();
 
   bool gameOver = false;
-  bool isPaused = false;
+  bool gamePaused = false;
 
  private:
   EnemyManager enemyManager;
