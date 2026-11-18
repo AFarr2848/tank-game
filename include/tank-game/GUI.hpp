@@ -1,3 +1,4 @@
+#pragma once
 namespace Tnk {
 class Window;
 struct GuiValues {

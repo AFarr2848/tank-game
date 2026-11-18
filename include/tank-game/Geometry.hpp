@@ -1,7 +1,9 @@
 #pragma once
 #include <GL/gl.h>
+#include <algorithm>
 #include <array>
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <vector>
 #include "glm/ext/vector_float2.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/matrix.hpp"
