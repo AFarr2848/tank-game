@@ -37,7 +37,7 @@ class Engine {
   void update();
   void screenResized();
   void updateDrawUniforms();
-
+  void doGui();
   void changeLightingResolution(float newResolution);
 };
 }  // namespace Tnk

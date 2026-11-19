@@ -87,6 +87,7 @@ class Lighting {
   float lightingResolution = 1.5;
 
   bool lightingEnabled = true;
+  bool lightingResizeRequested = false;
 
  private:
   CascadeInfoLocations cascadeLocations;

@@ -22,7 +22,6 @@ class Renderer {
         bufferMan(bufferMan),
         texMan(texMan),
         lighting(lighting) {}
-  void drawScreen();
 
   void drawMaze(const std::vector<glm::vec2>& lines);
 

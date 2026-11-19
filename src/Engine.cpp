@@ -86,7 +86,12 @@ void Engine::update() {
     screenResized();
     win->resized = false;
   }
+  if (lighting->lightingResizeRequested) {
+    changeLightingResolution(gui->values.lightingResolution);
+    lighting->lightingResizeRequested = false;
+  }
 
+  // incrementing and inputs
   timingData->incrementTiming(emscripten_get_now());
   glfwPollEvents();
   inputHelper->updateInputs();
@@ -94,29 +99,22 @@ void Engine::update() {
 
   glBindFramebuffer(GL_FRAMEBUFFER, texMan->fbo);
 
-  glViewport(0, 0, win->renderSize.x, win->renderSize.y);
+  // draw maze
   renderer->drawMaze(game->mazeLines);
 
+  // draw ligths
   if (lighting->lightingEnabled) {
-    glm::vec2 lightSize =
-        glm::vec2(win->renderSize) * lighting->lightingResolution;
-
-    glViewport(0, 0, lightSize.x, lightSize.y);
     auto lights = game->getLights();
     updateDrawUniforms();
     renderer->drawCascades(lights);
     renderer->mergeCascades();
   }
 
-  glViewport(0, 0, win->renderSize.x, win->renderSize.y);
+  // draw sprites
   auto sprites = game->getSprites();
   renderer->drawSprites(sprites);
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(0, 0, win->realSize.x, win->realSize.y);
-  glClearColor(0, 0, 0, 1);
-  glClear(GL_COLOR_BUFFER_BIT);
-
+  // scale images to screen
   if (lighting->lightingEnabled) {
     renderer->combineLighting();
 
@@ -124,6 +122,16 @@ void Engine::update() {
     renderer->drawImage();
   }
 
+  // do gui
+  doGui();
+
+  glfwSwapBuffers(win->window);
+}
+
+Engine::~Engine() = default;
+Engine::Engine() = default;
+
+void Engine::doGui() {
   gui->beginDraw();
 
   if (game->gameOver) {
@@ -134,24 +142,17 @@ void Engine::update() {
 
     if (win->renderSize != glm::ivec2(gui->values.gameResolution)) {
       win->renderSize = glm::ivec2(gui->values.gameResolution);
-      screenResized();
+      win->resized = true;
     }
 
     lighting->lightingEnabled = gui->values.enableLighting;
+
     if (lighting->lightingResolution != gui->values.lightingResolution) {
-      changeLightingResolution(gui->values.lightingResolution);
+      lighting->lightingResizeRequested = true;
     }
   }
   gui->endDraw();
-
-  unsigned char px[4];
-  glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px);  // forces a sync
-
-  glfwSwapBuffers(win->window);
 }
-
-Engine::~Engine() = default;
-Engine::Engine() = default;
 
 void Engine::screenResized() {
   texMan->makeBufferTextures(win->renderSize.x, win->renderSize.y);

@@ -3,7 +3,6 @@
 #include <GL/glext.h>
 #include <GLES3/gl3.h>
 #include <glm/gtx/string_cast.hpp>
-#include <iostream>
 #include <string>
 #include "glm/gtc/type_ptr.hpp"
 #include "tank-game/Lighting.hpp"
@@ -13,19 +12,11 @@
 #include "tank-game/managers/TextureManager.hpp"
 using namespace Tnk;
 
-void Renderer::drawScreen() {
-  GLuint emptyVAO;
-  glGenVertexArrays(1, &emptyVAO);
-
-  glUseProgram(shaderMan.shaderProgramMap["triangleProgram"]);
-  glBindVertexArray(emptyVAO);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
 void Renderer::drawMaze(const std::vector<glm::vec2>& lines) {
   glEnable(GL_BLEND);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texMan.get("mazeTex").texID, 0);
+  glViewport(0, 0, win.renderSize.x, win.renderSize.y);
 
   glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -43,6 +34,8 @@ void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
   glEnable(GL_BLEND);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texMan.get("mazeTex").texID, 0);
+  glViewport(0, 0, win.renderSize.x, win.renderSize.y);
+
   glUseProgram(shaderMan.shaderProgramMap["spriteProgram"]);
 
   bufferMan.get("spriteBuffer").bind();
@@ -63,6 +56,9 @@ void Renderer::drawSprites(const std::vector<Sprite>& sprites) {
 void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
   glDisable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
+  glm::vec2 lightSize = glm::vec2(win.renderSize) * lighting.lightingResolution;
+  glViewport(0, 0, lightSize.x, lightSize.y);
+
   GLuint program = shaderMan.shaderProgramMap["cascadeProgram"];
   glUseProgram(program);
   bufferMan.updateBuffer("lightBuffer", lights.data(),
@@ -86,6 +82,9 @@ void Renderer::drawCascades(std::array<PointLight, MAX_LIGHTS>& lights) {
 void Renderer::mergeCascades() {
   glDisable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
+  glm::vec2 lightSize = glm::vec2(win.renderSize) * lighting.lightingResolution;
+  glViewport(0, 0, lightSize.x, lightSize.y);
+
   GLuint program = shaderMan.shaderProgramMap["mergeProgram"];
   glUseProgram(program);
   glUniform1i(glGetUniformLocation(shaderMan.shaderProgramMap["mergeProgram"],
@@ -124,6 +123,8 @@ void Renderer::mergeCascades() {
 void Renderer::combineLighting() {
   glEnable(GL_BLEND);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glViewport(0, 0, win.realSize.x, win.realSize.y);
+
   GLuint shader = shaderMan.shaderProgramMap["averageProgram"];
   glUseProgram(shader);
 
@@ -147,6 +148,7 @@ void Renderer::combineLighting() {
 
 void Renderer::drawImage() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glViewport(0, 0, win.realSize.x, win.realSize.y);
   GLuint shader = shaderMan.shaderProgramMap["imageProgram"];
   glUseProgram(shader);
   bufferMan.get("emptyBuffer").bind();
@@ -159,6 +161,10 @@ void Renderer::bakeMazeCollisions() {
   glBindFramebuffer(GL_FRAMEBUFFER, texMan.fbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          texMan.get("mazeBakeTex").texID, 0);
+
+  glm::vec2 lightSize = glm::vec2(win.renderSize) * lighting.lightingResolution;
+  glViewport(0, 0, lightSize.x, lightSize.y);
+
   GLuint shader = shaderMan.shaderProgramMap["mazeBakeProgram"];
   glUseProgram(shader);
   bufferMan.get("emptyBuffer").bind();
