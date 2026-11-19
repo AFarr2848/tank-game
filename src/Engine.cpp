@@ -91,7 +91,6 @@ void Engine::update() {
   glfwPollEvents();
   inputHelper->updateInputs();
   game->updateGame();
-  updateDrawUniforms();
 
   glBindFramebuffer(GL_FRAMEBUFFER, texMan->fbo);
 
@@ -104,6 +103,7 @@ void Engine::update() {
 
     glViewport(0, 0, lightSize.x, lightSize.y);
     auto lights = game->getLights();
+    updateDrawUniforms();
     renderer->drawCascades(lights);
     renderer->mergeCascades();
   }

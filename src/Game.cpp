@@ -22,6 +22,7 @@ void Game::startGame() {
   playerInfo.lightColor = glm::vec3(10.0f);
   playerInfo.moveSpeed = 0.4;
   playerInfo.turnSpeed = 2;
+  playerInfo.bulletColor = {3.0, 10.0, 3.0};
 
   playerTank = PlayerTank(playerInfo);
   playerTank.light.location = playerTank.bounds.center;
@@ -30,7 +31,7 @@ void Game::startGame() {
 }
 
 std::array<PointLight, MAX_LIGHTS> Game::getLights() {
-  std::array<PointLight, MAX_LIGHTS> lights;
+  std::array<PointLight, MAX_LIGHTS> lights{};
   int currentLightIndex = 0;
 
   lights[currentLightIndex++] = playerTank.light;
@@ -43,7 +44,13 @@ std::array<PointLight, MAX_LIGHTS> Game::getLights() {
 
   for (const auto& enemy : enemyManager.enemyTanks) {
     if (currentLightIndex < MAX_LIGHTS) {
-      lights[currentLightIndex++] = enemy->light;
+      PointLight enemyLight = enemy->light;
+      if (enemy->timeAlive < 3) {
+        enemyLight.color +=
+            enemy->spawnLightColor *
+            glm::vec3(cos((enemy->timeAlive * std::numbers::pi) / 6));
+      }
+      lights[currentLightIndex++] = enemyLight;
     }
   }
 
@@ -74,7 +81,7 @@ void Game::updateGame() {
 }
 
 void Game::processInput() {
-  if (!gamePaused)
+  if (!gamePaused && !gameOver)
     playerTank.updatePlayer(timingData.deltaTime, inputHelper, maze, bulletVec);
   if (inputHelper.isKeyDownToggle(GLFW_KEY_ESCAPE))
     gamePaused = !gamePaused;
@@ -85,11 +92,12 @@ void Game::collideBullets() {
     Bullet& b = bulletVec.at(i);
     b.moveBullet(timingData.deltaTime, maze);
     if (b.bounces > b.maxBounces) {
-      Tank* t;
+      Tank* t = nullptr;
       if (b.ownerID == playerTank.id)
         t = &playerTank;
-      else if (enemyManager.getEnemyByID(b.ownerID) != nullptr)
+      else if (enemyManager.getEnemyByID(b.ownerID) != nullptr) {
         t = enemyManager.getEnemyByID(b.ownerID)->get();
+      }
       if (t != nullptr)
         t->currentBullets--;
     }

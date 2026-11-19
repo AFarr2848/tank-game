@@ -1,4 +1,5 @@
 #pragma once
+#include "tank-game/Lighting.hpp"
 #include "tank-game/gameObjects/Tank.hpp"
 namespace Tnk {
 struct TankAI {
@@ -14,6 +15,7 @@ struct EnemyTankCreateInfo : public TankCreateInfo {
   int tankValue = 1;
   int maxRicochets = 1;
   float shotTolerance = std::numbers::pi / 32;
+  glm::vec3 initialLight = {5.0, 3.0, 1.0};
 };
 
 class EnemyTank : public Tank {
@@ -22,10 +24,14 @@ class EnemyTank : public Tank {
     maxRicochets = info.maxRicochets;
     tankValue = info.tankValue;
     tankAI.shotTolerance = info.shotTolerance;
+    spawnLightColor = info.initialLight;
   };
 
   int tankValue;
+  float timeAlive = 0;
   TankAI tankAI;
+
+  glm::vec3 spawnLightColor = {0, 0, 0};
 
   void updateAI();
   bool canShoot();

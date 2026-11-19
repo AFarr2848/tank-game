@@ -38,5 +38,5 @@ void main() {
 
   ivec2 px = clamp(ivec2(floor(p)), ivec2(0), ivec2(screenSize) - 1);
   vec3 scene = texelFetch(screenTex, px, 0).rgb;
-  FragColor = vec4(scene * (vec3(0.15) + light), 1.0);
+  FragColor = vec4(scene * light, 1.0);
 }

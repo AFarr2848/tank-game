@@ -53,6 +53,7 @@ void PlayerTank::shoot(std::vector<Bullet>& bulletVec) {
         },
         this->id, this->maxRicochets);
     bullet.vel = bounds.getFront() * bulletSpeed;
+    bullet.light.color = bulletColor;
     bulletVec.push_back(bullet);
   }
 }

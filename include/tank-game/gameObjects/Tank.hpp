@@ -14,6 +14,7 @@ struct TankCreateInfo {
   Rect bounds = {.center = {0, 0}, .size = {0.11, 0.075}, .rotation = 0};
   std::string texture = "playerTank";
   glm::vec3 lightColor = {10.0f, 10.0f, 10.0f};
+  glm::vec3 bulletColor = {3.0, 0.0, 2.0};
   float moveSpeed = 0.4;
   float turnSpeed = 2;
   float bulletSpeed = 0.6;
@@ -36,6 +37,7 @@ class Tank {
     maxBullets = info.maxBullets;
     fireCooldown = info.fireCooldown;
     maxRicochets = info.maxRicochets;
+    bulletColor = info.bulletColor;
   }
 
   Tank() : id(nextID++), bounds(), sprite(this->bounds) {
@@ -50,6 +52,7 @@ class Tank {
     maxBullets = info.maxBullets;
     fireCooldown = info.fireCooldown;
     maxRicochets = info.maxRicochets;
+    bulletColor = info.bulletColor;
   }
 
   Tank(const Tank& other)
@@ -65,6 +68,7 @@ class Tank {
     fireCooldown = other.fireCooldown;
     timeSinceFired = other.timeSinceFired;
     maxRicochets = other.maxRicochets;
+    bulletColor = other.bulletColor;
   }
 
   Tank& operator=(const Tank& other) {
@@ -80,6 +84,8 @@ class Tank {
       fireCooldown = other.fireCooldown;
       timeSinceFired = other.timeSinceFired;
       maxRicochets = other.maxRicochets;
+      bulletColor = other.bulletColor;
+      light = other.light;
     }
     return *this;
   }
@@ -113,6 +119,7 @@ class Tank {
         },
         this->id, this->maxRicochets);
     bullet.vel = bounds.getFront() * bulletSpeed;
+    bullet.light.color = bulletColor;
     bulletVec.push_back(bullet);
   }
 
@@ -134,6 +141,7 @@ class Tank {
   float fireCooldown;
   float timeSinceFired = 0;
   int maxRicochets;
+  glm::vec3 bulletColor;
 
  private:
   static inline uint32_t nextID = 1;

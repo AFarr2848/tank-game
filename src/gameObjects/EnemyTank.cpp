@@ -5,6 +5,7 @@ using namespace Tnk;
 const double PI = std::numbers::pi;
 void EnemyTank::updateAI() {}
 void EnemyTank::update(float deltaTime) {
+  timeAlive += deltaTime;
   sprite.bounds = bounds;
   tankAI.thinkTimer += deltaTime;
   timeSinceFired += deltaTime;

@@ -40,6 +40,8 @@ void EnemyManager::initEnemyTypes() {
   dorkInfo.maxBullets = 1;
   dorkInfo.fireCooldown = 2;
   dorkInfo.texture = "enemyDork";
+  dorkInfo.lightColor = glm::vec3(0);
+  dorkInfo.bulletColor = {3.0, 0.0, 2.0};
   enemyTypes["dork"] = dorkInfo;
 
   EnemyTankCreateInfo trooperInfo = {
@@ -52,6 +54,8 @@ void EnemyManager::initEnemyTypes() {
   trooperInfo.maxBullets = 2;
   trooperInfo.fireCooldown = 1;
   trooperInfo.texture = "enemyTrooper";
+  trooperInfo.lightColor = glm::vec3(0);
+  trooperInfo.bulletColor = {4.0, 1.0, 2.0};
   enemyTypes["trooper"] = trooperInfo;
 
   EnemyTankCreateInfo sprayerInfo = {
@@ -64,6 +68,8 @@ void EnemyManager::initEnemyTypes() {
   sprayerInfo.maxBullets = 100;
   sprayerInfo.fireCooldown = 0.1;
   sprayerInfo.texture = "enemySprayer";
+  sprayerInfo.lightColor = glm::vec3(2.0, 1.0, 1.0);
+  sprayerInfo.bulletColor = {3.0, 0.0, 0.0};
   enemyTypes["sprayer"] = sprayerInfo;
 
   EnemyTankCreateInfo sniperInfo = {
@@ -77,6 +83,8 @@ void EnemyManager::initEnemyTypes() {
   sniperInfo.fireCooldown = 4;
   sniperInfo.bulletSpeed = 1.5;
   sniperInfo.texture = "enemySniper";
+  sniperInfo.lightColor = glm::vec3(0.0, 1.0, 3.0);
+  sniperInfo.bulletColor = {0.0, 1.0, 3.0};
   enemyTypes["sniper"] = sniperInfo;
 
   EnemyTankCreateInfo chaserInfo = {
@@ -86,6 +94,7 @@ void EnemyManager::initEnemyTypes() {
   chaserInfo.turnSpeed = 3.5;
   chaserInfo.texture = "enemyRam";
   chaserInfo.bounds.size *= 1.5;
+  chaserInfo.lightColor = glm::vec3(1.0, 3.0, 1.0);
   enemyTypes["chaser"] = chaserInfo;
 }
 
@@ -274,9 +283,6 @@ void EnemyManager::updateEnemyShots(PlayerTank& playerTank, Maze& maze) {
             float angleDiff =
                 atan2(std::sin(t->tankAI.shotAngle - t->bounds.rotation),
                       std::cos(t->tankAI.shotAngle - t->bounds.rotation));
-            float newAngleDiff =
-                atan2(std::sin(newShotAngle - t->bounds.rotation),
-                      std::cos(newShotAngle - t->bounds.rotation));
             if (abs(angleDiff) <= abs(newShotAngle))
               continue;
           }
@@ -360,7 +366,6 @@ EnemyManager::ShotRay EnemyManager::calculateRayBounce(ShotRay ray,
                            : (mapY + 1.0f - gridY) * deltaDist.y;
 
   bool hitWall = false;
-  int hitSide = 0;  // 0 = X-axis wall, 1 = Y-axis wall
   glm::vec2 normal = {0.0f, 0.0f};
 
   float t = 0.0f;
