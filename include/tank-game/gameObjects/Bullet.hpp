@@ -19,6 +19,9 @@ class Bullet {
   Bullet(uint32_t ownerID) : bounds(), sprite(this->bounds) {
     sprite.texture = "bullet";
     this->ownerID = ownerID;
+    light = PointLight{.location = bounds.center,
+                       .radius = 0.01,
+                       .color = glm::vec3(0.5f, 0.0f, 0.2f) * glm::vec3(25.0)};
   }
 
   Bullet& operator=(const Bullet& other) {
@@ -29,6 +32,7 @@ class Bullet {
       ownerID = other.ownerID;
       bounces = other.bounces;
       maxBounces = other.maxBounces;
+      light = other.light;
     }
     return *this;
   }

@@ -20,6 +20,7 @@ void EnemyTankSprayer::shoot(std::vector<Bullet>& bulletVec) {
   float offset = Random::getReal(-std::numbers::pi / 8, std::numbers::pi / 8);
 
   bullet.vel = (glm::rotate(bounds.getFront(), offset)) * bulletSpeed;
+  bullet.light.color = bulletColor;
   bulletVec.push_back(bullet);
 }
 

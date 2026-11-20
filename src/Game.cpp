@@ -22,7 +22,7 @@ void Game::startGame() {
   playerInfo.lightColor = glm::vec3(10.0f);
   playerInfo.moveSpeed = 0.4;
   playerInfo.turnSpeed = 2;
-  playerInfo.bulletColor = {3.0, 10.0, 3.0};
+  playerInfo.bulletColor = {3.0, 20.0, 3.0};
 
   playerTank = PlayerTank(playerInfo);
   playerTank.light.location = playerTank.bounds.center;

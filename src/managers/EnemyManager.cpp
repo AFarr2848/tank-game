@@ -55,7 +55,7 @@ void EnemyManager::initEnemyTypes() {
   trooperInfo.fireCooldown = 1;
   trooperInfo.texture = "enemyTrooper";
   trooperInfo.lightColor = glm::vec3(0);
-  trooperInfo.bulletColor = {4.0, 1.0, 2.0};
+  trooperInfo.bulletColor = {8.0, 1.0, 2.0};
   enemyTypes["trooper"] = trooperInfo;
 
   EnemyTankCreateInfo sprayerInfo = {
@@ -69,7 +69,7 @@ void EnemyManager::initEnemyTypes() {
   sprayerInfo.fireCooldown = 0.1;
   sprayerInfo.texture = "enemySprayer";
   sprayerInfo.lightColor = glm::vec3(2.0, 1.0, 1.0);
-  sprayerInfo.bulletColor = {3.0, 0.0, 0.0};
+  sprayerInfo.bulletColor = {10.0, 0.0, 0.0};
   enemyTypes["sprayer"] = sprayerInfo;
 
   EnemyTankCreateInfo sniperInfo = {
@@ -84,7 +84,7 @@ void EnemyManager::initEnemyTypes() {
   sniperInfo.bulletSpeed = 1.5;
   sniperInfo.texture = "enemySniper";
   sniperInfo.lightColor = glm::vec3(0.0, 1.0, 3.0);
-  sniperInfo.bulletColor = {0.0, 1.0, 3.0};
+  sniperInfo.bulletColor = {0.0, 4.0, 10.0};
   enemyTypes["sniper"] = sniperInfo;
 
   EnemyTankCreateInfo chaserInfo = {
