@@ -34,7 +34,7 @@ void Engine::startEngine() {
                                         *lighting);
   game = std::make_unique<Game>(*inputHelper, *timingData, *gui);
 
-  win->renderSize = glm::vec2(gui->values.gameResolution);
+  win->renderSize = glm::vec2(256);
   lighting->lightingResolution = gui->values.lightingResolution;
   lighting->lightingEnabled = gui->values.enableLighting;
 
@@ -141,17 +141,16 @@ void Engine::doGui() {
       emscripten_run_script("window.location.reload();");
   } else if (game->gamePaused) {
     game->gamePaused = gui->drawPauseMenu();
-
-    if (win->renderSize != glm::ivec2(gui->values.gameResolution)) {
-      win->renderSize = glm::ivec2(gui->values.gameResolution);
-      win->resized = true;
-    }
-
     lighting->lightingEnabled = gui->values.enableLighting;
 
     float lightingRounded = round(gui->values.lightingResolution * 32) / 32;
     if (lighting->lightingResolution != lightingRounded) {
       lighting->lightingResizeRequested = true;
+    }
+    if (gui->values.spawnBot != "") {
+      game->enemyManager.addTank(gui->values.spawnBot, game->playerTank,
+                                 game->maze);
+      gui->values.spawnBot = "";
     }
   }
   gui->endDraw();

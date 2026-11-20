@@ -9,7 +9,7 @@ class EnemyManager {
   std::unordered_map<std::string, EnemyTankCreateInfo> enemyTypes;
   int maxTankValue = 1;
 
-  void addTank(std::string type);
+  void addTank(std::string type, PlayerTank& playerTank, Maze& maze);
   std::unique_ptr<EnemyTank>* getEnemyByID(uint32_t id);
   void updateEnemies(PlayerTank& playerTank,
                      Maze& maze,

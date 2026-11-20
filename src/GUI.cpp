@@ -61,8 +61,26 @@ bool Gui::drawPauseMenu() {
       }
 
       ImGui::Spacing();
+      ImGui::Separator();
 
     } else {
+      ImGui::Text("Spawn bots:");
+      if (ImGui::Button("dork"))
+        values.spawnBot = "dork";
+      ImGui::SameLine();
+      if (ImGui::Button("trooper"))
+        values.spawnBot = "trooper";
+      ImGui::SameLine();
+      if (ImGui::Button("chaser"))
+        values.spawnBot = "chaser";
+      ImGui::SameLine();
+      if (ImGui::Button("sniper"))
+        values.spawnBot = "sniper";
+      ImGui::SameLine();
+      if (ImGui::Button("sprayer"))
+        values.spawnBot = "sprayer";
+      ImGui::SameLine();
+
       ImGui::Checkbox("Lobotomize bots", &values.disableBots);
       ImGui::Separator();
 

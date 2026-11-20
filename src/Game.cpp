@@ -43,7 +43,6 @@ std::array<PointLight, MAX_LIGHTS> Game::getLights() {
   }
 
   for (const auto& enemy : enemyManager.enemyTanks) {
-    std::cout << enemy->id << std::endl;
     if (currentLightIndex < MAX_LIGHTS) {
       PointLight enemyLight = enemy->light;
       if (enemy->timeAlive < 3) {

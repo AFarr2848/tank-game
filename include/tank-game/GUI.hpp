@@ -1,9 +1,10 @@
 #pragma once
+#include <string>
 namespace Tnk {
 class Window;
 struct GuiValues {
   float lightingResolution = 2.0;
-  int gameResolution = 256;
+  std::string spawnBot = "";
   bool enableLighting = true;
   bool disableBots = false;
 };

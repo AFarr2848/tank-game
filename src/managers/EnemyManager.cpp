@@ -136,17 +136,22 @@ void EnemyManager::trySpawnTank(PlayerTank& playerTank, Maze& maze) {
   }
 
   else if (getTotalTankValues() < maxTankValue) {
-    auto createInfo = enemyTypes[nextTankSpawn];
-    createInfo.bounds.center = getSpawnLocation(playerTank, maze);
-
-    if (nextTankSpawn == "sprayer")
-      enemyTanks.push_back(std::make_unique<EnemyTankSprayer>(createInfo));
-    else if (nextTankSpawn == "chaser")
-      enemyTanks.push_back(std::make_unique<EnemyTankChaser>(createInfo));
-    else
-      enemyTanks.push_back(std::make_unique<EnemyTank>(createInfo));
+    addTank(nextTankSpawn, playerTank, maze);
     nextTankSpawn = "";
   }
+}
+
+void EnemyManager::addTank(std::string type,
+                           PlayerTank& playerTank,
+                           Maze& maze) {
+  auto createInfo = enemyTypes[type];
+  createInfo.bounds.center = getSpawnLocation(playerTank, maze);
+  if (type == "sprayer")
+    enemyTanks.push_back(std::make_unique<EnemyTankSprayer>(createInfo));
+  else if (type == "chaser")
+    enemyTanks.push_back(std::make_unique<EnemyTankChaser>(createInfo));
+  else
+    enemyTanks.push_back(std::make_unique<EnemyTank>(createInfo));
 }
 
 glm::vec2 EnemyManager::getSpawnLocation(PlayerTank& playerTank, Maze& maze) {
@@ -186,11 +191,12 @@ int EnemyManager::getTotalTankValues() {
 }
 
 bool EnemyManager::checkPlayerCollisions(PlayerTank& playerTank) {
-  for (auto& t : enemyTanks) {
-    if (typeid(dynamic_cast<EnemyTankChaser*>(t.get())) ==
-        typeid(EnemyTankChaser)) {
-      if (t->bounds.contains(playerTank.bounds.center))
+  for (const std::unique_ptr<EnemyTank>& t : enemyTanks) {
+    if (auto* chaser = dynamic_cast<EnemyTankChaser*>(t.get())) {
+      std::print("yup");
+      if (chaser->bounds.contains(playerTank.bounds.center)) {
         return true;
+      }
     }
   }
   return false;
