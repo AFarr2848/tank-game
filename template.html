@@ -1,39 +1,69 @@
-<!doctype html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <title>Tank Game</title>
-    <style>
-      body {
-        margin: 0;
-        background-color: #111;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      }
-      canvas.emscripten {
-        border: 0px none;
-        background-color: black;
-        height: 100vh;
-        aspect-ratio: 1/1;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- The WebGL canvas that GLFW renders into -->
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tank Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    <!-- Emscripten runtime hook -->
-    <script type='text/javascript'>
-      var Module = {
-        canvas: (function() {
-          var canvas = document.getElementById('canvas');
-          return canvas;
-        })()
-      };
-    </script>
-    {{{ SCRIPT }}}
-  </body>
-</html>
+    html, body {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #111;
+    }
+
+    .stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .side-panel {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .side-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #canvas {
+      display: block;
+      height: 100%;
+      width: auto;
+      aspect-ratio: 1 / 1;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="side-panel">
+      <img src="textures/left-image.png" alt="Left decoration" />
+    </div>
+
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    <div class="side-panel">
+      <img src="textures/right-image.png" alt="Right decoration" />
+    </div>
+  </div>
+
+  {{{ SCRIPT }}}
+</body>
+</html>``

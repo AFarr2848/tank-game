@@ -1,4 +1,5 @@
 #include "tank-game/GUI.hpp"
+#include <string>
 #include "external/imgui/backends/imgui_impl_glfw.h"
 #include "external/imgui/backends/imgui_impl_opengl3.h"
 #include "external/imgui/imgui.h"
@@ -64,8 +65,6 @@ bool Gui::drawPauseMenu() {
     } else {
       ImGui::Checkbox("Lobotomize bots", &values.disableBots);
       ImGui::Separator();
-      ImGui::SliderInt("Game Resolution", &values.gameResolution, 100,
-                       win.realSize.y);
 
       ImGui::Checkbox("Enable Lighting", &values.enableLighting);
       ImGui::SliderFloat("Lighting Resolution", &values.lightingResolution,
@@ -85,7 +84,7 @@ bool Gui::drawPauseMenu() {
   return gamePaused;
 }
 
-bool Gui::drawGameOver() {
+bool Gui::drawGameOver(int score) {
   bool restartGame = false;
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
@@ -111,10 +110,14 @@ bool Gui::drawGameOver() {
 
   if (ImGui::Begin("##GameOverOverlay", nullptr, windowFlags)) {
     const char* title = "GAME OVER";
+
     float windowWidth = ImGui::GetWindowSize().x;
     float textWidth = ImGui::CalcTextSize(title).x;
     ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
     ImGui::Text("%s", title);
+    textWidth = ImGui::CalcTextSize(title).x;
+    ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+    ImGui::Text("SCORE: %d", score);
 
     ImGui::Separator();
     ImGui::Spacing();

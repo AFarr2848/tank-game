@@ -113,7 +113,7 @@ class Tank {
 
             .center = bounds.center +
                       (bounds.getFront() * bounds.size.y / glm::vec2(2)),
-            .size = glm::vec2(0.03),
+            .size = glm::vec2(0.06),
             .rotation = 0
 
         },

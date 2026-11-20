@@ -2,8 +2,8 @@
 namespace Tnk {
 class Window;
 struct GuiValues {
-  float lightingResolution = 1.0;
-  int gameResolution = 320;
+  float lightingResolution = 2.0;
+  int gameResolution = 256;
   bool enableLighting = true;
   bool disableBots = false;
 };
@@ -13,7 +13,7 @@ class Gui {
   void initGui();
   void shutdown();
   bool drawPauseMenu();
-  bool drawGameOver();
+  bool drawGameOver(int score);
   void beginDraw();
   void endDraw();
   ~Gui();

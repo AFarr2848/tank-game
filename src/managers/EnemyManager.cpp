@@ -170,10 +170,10 @@ std::unique_ptr<EnemyTank>* EnemyManager::getEnemyByID(uint32_t id) {
 }
 
 void EnemyManager::killTank(uint32_t id) {
-  auto& t = *getEnemyByID(id);
-  if (t != nullptr) {
+  auto* t = getEnemyByID(id);
+  if (t) {
     maxTankValue += 1;
-    std::erase(enemyTanks, t);
+    std::erase(enemyTanks, *t);
   }
 }
 
@@ -187,7 +187,8 @@ int EnemyManager::getTotalTankValues() {
 
 bool EnemyManager::checkPlayerCollisions(PlayerTank& playerTank) {
   for (auto& t : enemyTanks) {
-    if (typeid(t) == typeid(EnemyTankChaser)) {
+    if (typeid(dynamic_cast<EnemyTankChaser*>(t.get())) ==
+        typeid(EnemyTankChaser)) {
       if (t->bounds.contains(playerTank.bounds.center))
         return true;
     }

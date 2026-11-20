@@ -2,6 +2,7 @@
 #include <GL/gl.h>
 #include <GLES3/gl3.h>
 #include <GLFW/glfw3.h>
+#include <cmath>
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <memory>
@@ -87,7 +88,8 @@ void Engine::update() {
     win->resized = false;
   }
   if (lighting->lightingResizeRequested) {
-    changeLightingResolution(gui->values.lightingResolution);
+    float lightingRounded = round(gui->values.lightingResolution * 32) / 32;
+    changeLightingResolution(lightingRounded);
     lighting->lightingResizeRequested = false;
   }
 
@@ -135,7 +137,7 @@ void Engine::doGui() {
   gui->beginDraw();
 
   if (game->gameOver) {
-    if (gui->drawGameOver())
+    if (gui->drawGameOver(game->enemyManager.maxTankValue))
       emscripten_run_script("window.location.reload();");
   } else if (game->gamePaused) {
     game->gamePaused = gui->drawPauseMenu();
@@ -147,7 +149,8 @@ void Engine::doGui() {
 
     lighting->lightingEnabled = gui->values.enableLighting;
 
-    if (lighting->lightingResolution != gui->values.lightingResolution) {
+    float lightingRounded = round(gui->values.lightingResolution * 32) / 32;
+    if (lighting->lightingResolution != lightingRounded) {
       lighting->lightingResizeRequested = true;
     }
   }

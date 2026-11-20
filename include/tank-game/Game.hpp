@@ -28,9 +28,9 @@ class Game {
   bool gameOver = false;
   bool gamePaused = false;
 
- private:
   EnemyManager enemyManager;
 
+ private:
   InputHelper& inputHelper;
   TimingData& timingData;
   Gui& gui;
